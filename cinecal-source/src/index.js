@@ -3,16 +3,47 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname.startsWith("/poster/") && request.method === "GET") {
-      const id = decodeURIComponent(url.pathname.slice(8));
-      if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
-        return new Response("Not found", { status: 404 });
-      }
-      return Response.redirect(
-        "https://drive.google.com/uc?export=view&id=" + encodeURIComponent(id),
-        302
-      );
+  const id = decodeURIComponent(url.pathname.slice(8));
+
+  if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+    return new Response("Not found", { status: 404 });
+  }
+
+  try {
+    const driveUrl =
+      "https://drive.google.com/uc?export=view&id=" +
+      encodeURIComponent(id);
+
+    const imageResponse = await fetch(driveUrl);
+
+    if (!imageResponse.ok) {
+      return new Response("Google Drive image fetch failed", {
+        status: 502
+      });
     }
 
+    const contentType =
+      imageResponse.headers.get("Content-Type") || "";
+
+    if (!contentType.startsWith("image/")) {
+      return new Response("Google Drive did not return an image", {
+        status: 502
+      });
+    }
+
+    return new Response(imageResponse.body, {
+      headers: {
+        "Content-Type": contentType,
+        "Cache-Control": "public, max-age=3600"
+      }
+    });
+
+  } catch (error) {
+    return new Response("Poster error: " + error.message, {
+      status: 502
+    });
+  }
+}
     if (url.pathname === "/api/movies" && request.method === "GET") {
       const { results } = await env.DB.prepare(
         "SELECT id,title,date,genre,poster FROM movies WHERE status='approved' ORDER BY date ASC,title ASC"
