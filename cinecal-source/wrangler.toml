@@ -10,7 +10,7 @@ run_worker_first = ["/api/*", "/poster/*"]
 [[d1_databases]]
 binding = "DB"
 database_name = "cinecal-db"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "2efb9524-8a85-4fb9-befb-ed4ac38f73bf"
 
 [[r2_buckets]]
 binding = "POSTERS"
