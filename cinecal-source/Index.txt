@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en"><head><base target="_top"><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ===== CineCal Genre Selector Design ===== */
+
+.genre-field {
+  position: relative;
+  width: 100%;
+}
+
+.genre-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 7px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: #171717;
+}
+
+.genre-control input {
+  flex: 1;
+  min-width: 130px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: white;
+  padding: 6px;
+}
+
+.genre-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.genre-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #245b9b;
+  color: white;
+  font-size: 12px;
+}
+
+.genre-tag button {
+  border: none;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+}
+
+.genre-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  max-height: 280px;
+  overflow-y: auto;
+  margin-top: 5px;
+  padding: 12px;
+  border: 1px solid #444;
+  border-radius: 10px;
+  background: #202020;
+  box-shadow: 0 8px 20px rgba(0,0,0,.4);
+}
+
+.genre-menu[hidden] {
+  display: none;
+}
+
+.genre-heading {
+  color: #aaa;
+  font-size: 12px;
+  font-weight: bold;
+  margin: 7px 0;
+  text-transform: uppercase;
+}
+
+.genre-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.genre-option {
+  padding: 7px 11px;
+  border: 1px solid #555;
+  border-radius: 20px;
+  background: #303030;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.genre-option.selected {
+  background: #245b9b;
+  border-color: #4b9cff;
+}
+:root{--bg:#090c13;--s:#111723;--s2:#171e2d;--line:#222b3f;--t:#eef0f6;--m:#9ba5ba;--a:#e03a52;--soft:rgba(224,58,82,.16);--ok:#3ecf8e;--h:"Bricolage Grotesque",system-ui,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:15px/1.5 Inter,system-ui,sans-serif}
+button,input{font:inherit;color:inherit}button{cursor:pointer}:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+.app{max-width:1360px;margin:0 auto;padding:20px clamp(14px,3vw,32px) 40px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font:800 24px var(--h);border:0;background:transparent;padding:0;cursor:pointer;color:var(--t)}.logo i{width:34px;height:34px;border-radius:9px;background:var(--a);display:grid;place-items:center;font-style:normal;font-size:17px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--s);border-radius:10px;padding:9px 16px;font-weight:600}.btn:hover{background:var(--s2)}
+.btn.p{background:var(--a);border-color:var(--a);color:#fff}.btn.sm{padding:6px 12px;font-size:13px}.btn.d{color:var(--a);margin-right:auto}
+.badge{font-size:13px;color:var(--ok);font-weight:600;align-self:center}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:22px;align-items:start}
+.side{background:var(--s);border:1px solid var(--line);border-radius:18px;padding:16px;max-height:calc(100vh - 32px);overflow:auto}
+.side h2{font:700 17px var(--h);margin:0 2px 10px}.side h2~h2,.pend+h2{margin-top:20px}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{display:flex;gap:12px;background:var(--s2);border:1px solid transparent;border-radius:13px;padding:10px;text-align:left;width:100%}
+button.card:hover{border-color:var(--line)}
+.poster{width:62px;aspect-ratio:2/3;border-radius:8px;object-fit:cover;flex:none;background:linear-gradient(145deg,var(--soft),var(--s));display:grid;place-items:center;font:800 22px var(--h);color:var(--a)}
+.card b{display:block;font-weight:600;line-height:1.3}.meta{color:var(--m);font-size:13px}
+.tag{display:inline-block;margin-top:6px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--soft);color:var(--a)}.tag.soon{background:rgba(62,207,142,.14);color:var(--ok)}
+.row{display:flex;gap:8px;margin-top:8px}
+.empty{text-align:center;color:var(--m);padding:24px 10px;font-size:14px}.empty strong{display:block;color:var(--t);margin-bottom:4px}
+.cal{background:var(--s);border:1px solid var(--line);border-radius:18px;overflow:hidden;will-change:transform,opacity}
+/* Smooth entrance after choosing a movie from Coming up */
+.cal.calendar-enter-next{animation:calendarEnterNext .42s cubic-bezier(.22,.8,.25,1) both}
+.cal.calendar-enter-prev{animation:calendarEnterPrev .42s cubic-bezier(.22,.8,.25,1) both}
+@keyframes calendarEnterNext{from{opacity:.35;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes calendarEnterPrev{from{opacity:.35;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+@media(prefers-reduced-motion:reduce){.cal.calendar-enter-next,.cal.calendar-enter-prev{animation:none}}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--line)}
+.ch h1{margin:0;font:800 clamp(24px,3.4vw,34px) var(--h)}.ch h1 span{color:var(--m);font-weight:600;margin-left:8px}.nav{display:flex;gap:6px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr)}.dow{padding:10px 8px;color:var(--m);font-size:13px;font-weight:600;text-align:center;border-bottom:1px solid var(--line)}
+.day{position:relative;isolation:isolate;min-height:154px;padding:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:block;cursor:pointer;overflow:hidden;background:var(--s)}
+.day:nth-child(7n){border-right:0}.day:hover{background:var(--s2)}.day.out{opacity:.48}
+/* Date stays clearly visible as a floating badge while artwork fills the whole calendar cell. */
+.day .num{position:absolute;z-index:5;top:7px;left:7px;background:rgba(9,12,19,.88);backdrop-filter:blur(7px);color:#fff;border:1px solid rgba(255,255,255,.28);box-shadow:0 2px 9px rgba(0,0,0,.4)}
+.day.today .num,.day.selected-date .num{background:var(--a);border-color:#ff8797;color:#fff}
+.day .thumbs{position:absolute;z-index:1;inset:0;display:grid;grid-template-columns:repeat(var(--poster-cols,1),minmax(0,1fr));grid-template-rows:repeat(var(--poster-rows,1),minmax(0,1fr));gap:3px;width:100%;height:100%;overflow:hidden}
+.movie-tile{position:relative;min-width:0;min-height:0;overflow:hidden;border-radius:6px;background:linear-gradient(145deg,var(--s2),var(--soft));box-shadow:0 2px 7px rgba(0,0,0,.3)}
+.movie-tile .poster{display:block;width:100%;height:100%;min-height:0;aspect-ratio:auto;object-fit:cover;border-radius:0;font-size:20px}
+.movie-tile:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.88));pointer-events:none}
+.movie-tile-title{position:absolute;z-index:2;left:5px;right:5px;bottom:4px;color:#fff;font-size:10px;line-height:1.15;font-weight:700;text-shadow:0 1px 3px #000;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.movie-tile-more{position:absolute;z-index:3;inset:0;display:grid;place-items:center;background:rgba(5,8,14,.72);color:#fff;font-size:clamp(12px,1.2vw,18px);font-weight:800;text-shadow:0 1px 4px #000}
+.day .thumbs.count-1{--poster-cols:1;--poster-rows:1}.day .thumbs.count-2{--poster-cols:2;--poster-rows:1}.day .thumbs.count-3{--poster-cols:2;--poster-rows:2}.day .thumbs.count-3 .movie-tile:nth-child(1){grid-row:1 / span 2}.day .thumbs.count-4{--poster-cols:2;--poster-rows:2}
+.num{font-size:13px;font-weight:600;width:26px;height:26px;display:grid;place-items:center;border-radius:50%}.day.today .num{background:var(--a);color:#fff}
+.day.selected-date .num{background:var(--a);color:#fff;box-shadow:0 0 0 4px var(--soft),0 0 18px rgba(224,58,82,.38);animation:datePulse 1.8s ease-in-out 2}
+.day.selected-date{background:rgba(224,58,82,.09);box-shadow:inset 0 0 0 3px rgba(224,58,82,.9)}.day.selected-date .thumbs{inset:3px;border-radius:5px}.day:not(:has(.thumbs)){padding:0}.day:not(:has(.thumbs)) .num{top:8px;left:8px}
+@keyframes datePulse{0%,100%{box-shadow:0 0 0 3px var(--soft),0 0 10px rgba(224,58,82,.2)}50%{box-shadow:0 0 0 6px var(--soft),0 0 20px rgba(224,58,82,.42)}}
+@media(prefers-reduced-motion:reduce){.day.selected-date .num{animation:none}}
+.thumbs{display:grid;gap:4px}
+.ov{position:fixed;inset:0;background:rgba(4,6,10,.72);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}.ov.open{display:flex}
+.modal{background:var(--s);border:1px solid var(--line);border-radius:20px;width:min(540px,100%);max-height:100%;overflow:auto;padding:22px}
+.modal h3{margin:0 0 6px;font:700 20px var(--h)}.hint{color:var(--m);font-size:13px;margin:0 0 14px}
+.mb{display:flex;gap:18px}.drop{width:140px;aspect-ratio:2/3;flex:none;border:1.5px dashed var(--line);border-radius:12px;display:grid;place-items:center;text-align:center;color:var(--m);font-size:13px;cursor:pointer;background:var(--s2) center/cover no-repeat}.drop.has{border-style:solid;color:transparent}
+.f{flex:1;display:flex;flex-direction:column;gap:14px;min-width:0}label{display:block;font-size:13px;font-weight:600;color:var(--m);margin-bottom:6px}
+input[type=text],input[type=date],input[type=password]{width:100%;background:var(--s2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}input:focus{border-color:var(--a);outline:0}
+.err{color:var(--a);font-size:13px;min-height:18px}.ba{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:var(--t);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30}.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ===== Date details: large poster gallery ===== */
+.date-ov{position:fixed;inset:0;z-index:25;display:none;align-items:center;justify-content:center;padding:clamp(10px,3vw,28px);background:rgba(3,5,9,.86);backdrop-filter:blur(8px)}
+.date-ov.open{display:flex}
+.date-modal{width:min(1080px,100%);max-height:94vh;overflow:auto;background:var(--s);border:1px solid var(--line);border-radius:22px;padding:clamp(16px,2.5vw,28px);box-shadow:0 24px 80px rgba(0,0,0,.55)}
+.date-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
+.date-modal-head h2{font:800 clamp(23px,3vw,32px) var(--h);margin:0}
+.date-modal-head p{color:var(--m);margin:4px 0 0;font-size:13px}
+.date-modal-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.date-movie-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(210px,100%),1fr));gap:20px}
+.date-movie-card{min-width:0;background:var(--s2);border:1px solid var(--line);border-radius:15px;overflow:hidden}
+.date-movie-poster{display:block;width:100%;height:auto;aspect-ratio:2/3;object-fit:cover;border-radius:0;background:linear-gradient(145deg,var(--soft),var(--s));color:var(--a);font:800 42px var(--h);display:grid;place-items:center}
+.date-movie-info{padding:13px 14px 15px}
+.date-movie-info h3{font:700 17px/1.3 var(--h);margin:0 0 7px;overflow-wrap:anywhere}
+.date-movie-info .meta{margin-top:4px}
+.date-empty{padding:42px 18px;text-align:center;border:1px dashed var(--line);border-radius:15px;color:var(--m)}
+.date-empty strong{display:block;color:var(--t);font:700 18px var(--h);margin-bottom:6px}
+.date-edit{margin-top:12px}
+@media(max-width:560px){.date-modal{border-radius:16px;padding:14px}.date-modal-head{flex-direction:column}.date-modal-actions{width:100%}.date-modal-actions .btn{flex:1}.date-movie-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.date-movie-info{padding:10px}.date-movie-info h3{font-size:14px}}
+@media(max-width:360px){.date-movie-grid{grid-template-columns:1fr 1fr}}
+
+@media(max-width:960px){.layout{grid-template-columns:1fr}.side{order:1;max-height:none}.cal{order:2}}
+@media(max-width:960px){.day{min-height:148px}}
+@media(max-width:560px){.day{min-height:94px;padding:0}.day .num{top:4px;left:4px;width:22px;height:22px;font-size:11px}.day .thumbs{gap:2px;border-radius:0}.movie-tile{border-radius:0}.movie-tile-title{left:2px;right:2px;bottom:2px;font-size:7px;-webkit-line-clamp:2}.movie-tile:after{inset:45% 0 0}.dow{padding:8px 2px;font-size:11px}.mb{flex-direction:column;align-items:center}.drop{width:130px}.f{width:100%}.ch{padding:14px}}
+@media(max-width:380px){.day{min-height:80px}.day .num{top:3px;left:3px;width:20px;height:20px;font-size:10px}.movie-tile-title{font-size:6px}}
+</style></head><body>
+<div class="app">
+<header><button class="logo" id="homeLogo" type="button" aria-label="CineCal home — go to today"><i>🎬</i>CineCal</button>
+<div class="acts"><span class="badge" id="badge" hidden>Admin mode</span>
+<button class="btn" id="imp" hidden>Import backup</button><input type="file" id="impf" accept=".json" hidden>
+<button class="btn" id="login">Admin</button><button class="btn p" id="add">Suggest a movie</button></div></header>
+<div class="layout"><aside class="side"><div id="pendBox" hidden><h2>Waiting for approval</h2><div class="list pend" id="pend"></div></div><h2>Coming up</h2><div class="list" id="list"></div></aside>
+<main class="cal"><div class="ch"><h1 id="title"></h1><div class="nav"><button class="btn" id="prev" aria-label="Previous month">‹</button><button class="btn" id="now">Today</button><button class="btn" id="next" aria-label="Next month">›</button></div></div><div class="grid" id="grid"></div></main></div></div>
+
+<div class="date-ov" id="dateOv" aria-hidden="true">
+  <section class="date-modal" role="dialog" aria-modal="true" aria-labelledby="dateTitle">
+    <div class="date-modal-head">
+      <div><h2 id="dateTitle">Movies on this date</h2><p id="dateSubtitle"></p></div>
+      <div class="date-modal-actions">
+        <button class="btn p" id="dateAdd">+ Suggest Another Movie</button>
+        <button class="btn" id="dateClose" aria-label="Close date details">✕</button>
+      </div>
+    </div>
+    <div class="date-movie-grid" id="dateMovies"></div>
+  </section>
+</div>
+
+<div class="ov" id="ov"><div class="modal" role="dialog" aria-modal="true"><h3 id="mt"></h3><p class="hint" id="mh"></p>
+<div class="mb"><div class="drop" id="drop" tabindex="0" role="button">Add poster</div><div class="f">
+<div><label for="nm">Movie title</label><input type="text" id="nm" maxlength="80"></div>
+<div><label for="dt">Release date</label><input type="date" id="dt"></div>
+<div class="genre-field" id="genreField">
+  <label for="gn">Genre</label>
+  <div class="genre-control">
+    <div class="genre-tags" id="genreTags"></div>
+    <input type="text" id="gn" placeholder="Select or search genres..." autocomplete="off">
+  </div>
+  <div class="genre-menu" id="genreMenu" hidden>
+    <div class="genre-heading">Popular</div>
+    <div id="genrePopular" class="genre-options"></div>
+    <div class="genre-heading">Others</div>
+    <div id="genreOthers" class="genre-options"></div>
+  </div>
+</div><div class="err" id="err"></div></div></div>
+<input type="file" id="file" accept="image/*" hidden>
+<div class="ba"><button class="btn d" id="del" hidden>Delete</button><button class="btn" id="cancel">Cancel</button><button class="btn p" id="save"></button></div></div></div>
+
+<div class="ov" id="lov"><div class="modal" style="width:min(380px,100%)"><h3>Admin sign in</h3><p class="hint">Enter your admin passcode.</p>
+<input type="password" id="pw" autocomplete="off"><div class="err" id="lerr"></div>
+<div class="ba"><button class="btn" id="lcancel">Cancel</button><button class="btn p" id="lgo">Sign in</button></div></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,"0");
+const api=(f,...a)=>new Promise((ok,no)=>google.script.run.withSuccessHandler(ok).withFailureHandler(e=>no(e)) [f](...a));
+const iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parse=s=>{const[a,b,c]=s.split("-").map(Number);return new Date(a,b-1,c)};
+const MO=["January","February","March","April","May","June","July","August","September","October","November","December"],DW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const purl=id=>id?"https://drive.google.com/thumbnail?id="+id+"&sz=w400":null;
+let pass=null,movies=[],pending=[],view=new Date(),editId=null,poster=null,oldPoster=null,highlightDate=null,calendarAnimTimer=null;view.setDate(1);
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),2600)}
+const msg=e=>(e&&e.message||String(e)).replace(/^Error:\s*/,"");
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function pe(m){if(m.poster){const i=el("img","poster");i.src=purl(m.poster);i.alt=m.title+" poster";return i}return el("div","poster",(m.title[0]||"?").toUpperCase())}
+const fmt=s=>{const d=parse(s);return DW[d.getDay()]+", "+MO[d.getMonth()].slice(0,3)+" "+d.getDate()+", "+d.getFullYear()};
+function cd(s){const t=new Date();t.setHours(0,0,0,0);const n=Math.round((parse(s)-t)/864e5);return n<0?["Released",0]:n===0?["Out today",1]:n===1?["Tomorrow",1]:["In "+n+" days",n<=7]}
+
+async function refresh(){
+  try{
+    if(pass){const all=await api("adminList",pass);movies=all.filter(m=>m.status==="approved");pending=all.filter(m=>m.status==="pending")}
+    else movies=await api("getMovies");
+    render();
+  }catch(e){if(pass&&/passcode/i.test(msg(e)))logout();else toast("Could not load movies. Check your connection.")}
+}
+function render(){
+  $("#badge").hidden=$("#imp").hidden=!pass;$("#login").textContent=pass?"Sign out":"Admin";$("#add").textContent=pass?"Add movie":"Suggest a movie";
+  $("#pendBox").hidden=!pass;
+  const pb=$("#pend");pb.replaceChildren();
+  if(!pending.length){pb.append(el("div","empty","No suggestions waiting."))}
+  pending.forEach(m=>{const c=el("div","card"),i=el("div");i.append(el("b",null,m.title),el("div","meta",fmt(m.date)+(m.genre?", "+m.genre:"")));
+    const r=el("div","row"),a=el("button","btn p sm","Approve"),x=el("button","btn sm","Reject");
+    a.onclick=()=>act("approve",m.id,"Approved");x.onclick=()=>act("remove",m.id,"Rejected");r.append(a,x);i.append(r);c.append(pe(m),i);pb.append(c)});
+  const lb=$("#list");lb.replaceChildren();const today=iso(new Date());
+  const up=movies.filter(m=>m.date>=today).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!up.length){const e=el("div","empty");e.append(el("strong",null,"Nothing scheduled"),document.createTextNode(pass?"Add a movie or approve a suggestion.":"Suggest a movie and it will appear once approved."));lb.append(e)}
+  up.forEach(m=>{const c=el("button","card"),i=el("div"),[t,s]=cd(m.date);
+    c.type="button";c.setAttribute("aria-label","Go to "+m.title+" release date, "+fmt(m.date));
+    i.append(el("b",null,m.title),el("div","meta",fmt(m.date)));if(m.genre)i.append(el("div","meta",m.genre));i.append(el("span","tag"+(s?" soon":""),t));
+    c.append(pe(m),i);c.onclick=()=>navigateToMovieDate(m.date);lb.append(c)});
+  const y=view.getFullYear(),mo=view.getMonth(),g=$("#grid");g.replaceChildren();
+  $("#title").replaceChildren(document.createTextNode(MO[mo]),el("span",null,String(y)));
+  DW.forEach(d=>g.append(el("div","dow",d)));
+  const f0=new Date(y,mo,1).getDay(),rows=Math.ceil((f0+new Date(y,mo+1,0).getDate())/7);
+  for(let i=0;i<rows*7;i++){
+    const d=new Date(y,mo,1-f0+i),s=iso(d),cell=el("div","day"+(d.getMonth()!==mo?" out":"")+(s===today?" today":"")+(s===highlightDate?" selected-date":""));
+    cell.append(el("span","num",String(d.getDate())));
+    const ms=movies.filter(m=>m.date===s).sort((a,b)=>a.title.localeCompare(b.title));
+    if(ms.length){
+      const visible=ms.slice(0,4),t=el("div","thumbs count-"+visible.length);
+      visible.forEach((m,index)=>{
+        const tile=el("div","movie-tile"),p=pe(m),label=el("span","movie-tile-title",m.title);
+        p.title=m.title;tile.title=m.title;tile.append(p,label);
+        if(ms.length>4&&index===3)tile.append(el("span","movie-tile-more","+"+(ms.length-3)));
+        t.append(tile);
+      });
+      cell.append(t);
+    }
+    cell.onclick=()=>openDateDetails(s);g.append(cell)}
+}
+
+// Navigate the calendar to a movie's release date and briefly highlight that day.
+function navigateToMovieDate(dateString){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(dateString||"")))return;
+  const target=parse(dateString);
+  const nextView=new Date(target.getFullYear(),target.getMonth(),1);
+  const currentView=new Date(view.getFullYear(),view.getMonth(),1);
+  const direction=nextView>=currentView?"next":"prev";
+  highlightDate=dateString;
+
+  const cal=$(".cal");
+  cal.classList.remove("calendar-enter-next","calendar-enter-prev");
+  if(calendarAnimTimer)clearTimeout(calendarAnimTimer);
+
+  // Render immediately when already on the same month; otherwise animate the new month in.
+  view=nextView;
+  render();
+  if(nextView.getTime()!==currentView.getTime()){
+    void cal.offsetWidth; // restart the CSS animation reliably
+    cal.classList.add(direction==="next"?"calendar-enter-next":"calendar-enter-prev");
+    calendarAnimTimer=setTimeout(()=>{
+      cal.classList.remove("calendar-enter-next","calendar-enter-prev");
+      calendarAnimTimer=null;
+    },460);
+  }
+
+  // On smaller screens, bring the calendar into view after selecting a movie.
+  if(window.matchMedia("(max-width: 960px)").matches){
+    cal.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+  }
+}
+
+async function act(fn,id,done){try{await api(fn,pass,id);toast(done);refresh()}catch(e){toast(msg(e))}}
+
+function setP(p,shown){poster=p;const d=$("#drop");d.classList.toggle("has",!!shown);d.style.backgroundImage=shown?"url("+shown+")":"";d.textContent=shown?"":"Add poster"}
+function openM(m,date){
+  editId=m?m.id:null;oldPoster=m?m.poster:null;
+  $("#mt").textContent=m?"Edit movie":pass?"Add movie":"Suggest a movie";
+  $("#mh").textContent=pass?"Movies you add are published right away.":"The admin reviews every suggestion before it appears.";
+  $("#save").textContent=m?"Save changes":pass?"Add movie":"Send for approval";
+  $("#nm").value=m?m.title:"";$("#dt").value=m?m.date:date||iso(new Date());setSelectedGenres(m&&m.genre||"");$("#err").textContent="";$("#del").hidden=!m;
+  setP(null,m?purl(m.poster):null);$("#ov").classList.add("open");setTimeout(()=>$("#nm").focus(),30)}
+const closeM=()=>$("#ov").classList.remove("open");
+let activeDetailDate=null;
+function closeDateDetails(){
+  const ov=$("#dateOv");ov.classList.remove("open");ov.setAttribute("aria-hidden","true");
+}
+function openDateDetails(dateString){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(dateString||"")))return;
+  activeDetailDate=dateString;
+  const d=parse(dateString),items=movies.filter(m=>m.date===dateString).sort((a,b)=>a.title.localeCompare(b.title));
+  $("#dateTitle").textContent=fmt(dateString);
+  $("#dateSubtitle").textContent=items.length?`${items.length} ${items.length===1?"movie":"movies"} scheduled for this date`:"No movies have been added for this date yet.";
+  const box=$("#dateMovies");box.replaceChildren();
+  if(!items.length){
+    const empty=el("div","date-empty");empty.style.gridColumn="1 / -1";
+    empty.append(el("strong",null,"Nothing scheduled yet"),document.createTextNode("Be the first to add a movie releasing on this date."));box.append(empty);
+  }
+  items.forEach(m=>{
+    const card=el("article","date-movie-card"),posterEl=pe(m);
+    posterEl.classList.add("date-movie-poster");posterEl.alt=m.title+" poster";card.append(posterEl);
+    const info=el("div","date-movie-info");info.append(el("h3",null,m.title),el("div","meta",fmt(m.date)));
+    if(m.genre)info.append(el("div","meta",m.genre));
+    if(pass){const edit=el("button","btn sm date-edit","Edit movie");edit.type="button";edit.onclick=()=>{closeDateDetails();openM(m)};info.append(edit)}
+    card.append(info);box.append(card);
+  });
+  const ov=$("#dateOv");ov.classList.add("open");ov.setAttribute("aria-hidden","false");
+}
+$("#dateClose").onclick=closeDateDetails;
+$("#dateAdd").onclick=()=>{const d=activeDetailDate;closeDateDetails();openM(null,d)};
+$("#dateOv").addEventListener("click",e=>{if(e.target.id==="dateOv")closeDateDetails()});
+function readP(f){if(!f||!f.type.startsWith("image/"))return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const w=Math.min(360,im.width),h=Math.round(im.height*w/im.width),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,w,h);const u=c.toDataURL("image/jpeg",.8);setP(u,u)};im.src=r.result};r.readAsDataURL(f)}
+$("#drop").onclick=()=>$("#file").click();$("#file").onchange=e=>{readP(e.target.files[0]);e.target.value=""};
+$("#save").onclick=async()=>{
+ const m={title:$("#nm").value.trim(),date:$("#dt").value,genre:getSelectedGenres()};
+  if(!m.title)return $("#err").textContent="Enter a movie title.";if(!m.date)return $("#err").textContent="Choose a release date.";
+  const b=$("#save");b.disabled=true;
+  try{
+    if(!pass){await api("submitMovie",m,poster);toast("Sent for approval. Thank you!")}
+    else if(editId){await api("adminUpdate",pass,editId,m,poster);toast("Movie updated")}
+    else{await api("adminAdd",pass,m,poster);toast("Movie added")}
+    if(pass){const d=parse(m.date);view=new Date(d.getFullYear(),d.getMonth(),1)}
+    closeM();refresh();
+  }catch(e){$("#err").textContent=msg(e)}finally{b.disabled=false}};
+$("#del").onclick=()=>{closeM();act("remove",editId,"Movie deleted")};
+$("#cancel").onclick=closeM;
+
+function logout(){pass=null;pending=[];refresh()}
+$("#login").onclick=()=>{if(pass)return logout();$("#pw").value="";$("#lerr").textContent="";$("#lov").classList.add("open");setTimeout(()=>$("#pw").focus(),30)};
+$("#lcancel").onclick=()=>$("#lov").classList.remove("open");
+$("#lgo").onclick=async()=>{const p=$("#pw").value;try{await api("adminList",p);pass=p;$("#lov").classList.remove("open");refresh();toast("Signed in as admin")}catch(e){$("#lerr").textContent=msg(e)}};
+$("#pw").onkeydown=e=>{if(e.key==="Enter")$("#lgo").click()};
+$("#add").onclick=()=>openM();
+$("#imp").onclick=()=>$("#impf").click();
+$("#impf").onchange=e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;const r=new FileReader();
+  r.onload=async()=>{
+    let list;try{const d=JSON.parse(r.result);list=Array.isArray(d)?d:d.movies;if(!Array.isArray(list))throw 0}catch(x){return toast("That file isn’t a CineCal backup")}
+    const have=new Set(movies.concat(pending).map(m=>m.title.toLowerCase()+m.date));let n=0;
+    for(const x of list){
+      const date=String(x.releaseDate||x.date||"").slice(0,10),title=String(x.title||"");
+      if(!title||!/^\d{4}-\d{2}-\d{2}$/.test(date)||have.has(title.toLowerCase()+date))continue;
+      const p=String(x.posterUrl||"");toast("Importing "+(++n)+" of "+list.length+"…");
+      try{await api("adminAdd",pass,{title,date,genre:x.genre||""},p.startsWith("data:image/")?p:"")}catch(er){toast(title+": "+msg(er))}
+    }
+    toast("Import finished");refresh()};
+  r.readAsText(f)};
+$("#prev").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};
+$("#next").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);render()};
+function goToToday(){navigateToMovieDate(iso(new Date()))}
+$("#now").onclick=goToToday;
+$("#homeLogo").onclick=goToToday;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeM();closeDateDetails();$("#lov").classList.remove("open")}});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refresh()});
+setInterval(()=>{if(!document.hidden)refresh()},60000);
+render();refresh();
+// ===== CineCal Multi-Genre Selector =====
+
+const POPULAR_GENRES = [
+  "Action",
+  "Adventure",
+  "Comedy",
+  "Crime",
+  "Horror",
+  "Thriller"
+];
+
+const OTHER_GENRES = [
+  "Animation", "Anime", "Biography", "Documentary", "Drama",
+  "Family", "Fantasy", "Historical", "History", "Martial Arts",
+  "Mystery", "Musical", "Music", "Romance", "Sci-Fi", "Sport",
+  "Superhero", "Supernatural", "War", "Western", "Psychological",
+  "Political", "Suspense", "Survival", "Disaster", "Detective",
+  "Gangster", "Heist", "Spy", "Zombie", "Vampire", "Monster",
+  "Coming-of-Age", "Teen", "Parody", "Satire", "Dark Comedy",
+  "Romantic Comedy", "Romantic Drama", "Psychological Thriller",
+  "Psychological Horror", "Crime Thriller", "Action Thriller",
+  "Time Travel", "Post-Apocalyptic", "Dystopian", "Cyberpunk",
+  "Mythology", "Religious", "Short Film", "Experimental"
+];
+
+let selectedGenres = [];
+
+function renderGenrePicker() {
+  const search = document.getElementById("gn");
+  const menu = document.getElementById("genreMenu");
+  const popularBox = document.getElementById("genrePopular");
+  const othersBox = document.getElementById("genreOthers");
+  const tagsBox = document.getElementById("genreTags");
+
+  if (!search || !menu || !popularBox || !othersBox || !tagsBox) return;
+
+  const query = search.value.trim().toLowerCase();
+
+  function showOptions(list, container) {
+    container.innerHTML = "";
+
+    list.filter(g => g.toLowerCase().includes(query)).forEach(g => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "genre-option";
+      btn.textContent = (selectedGenres.includes(g) ? "✓ " : "") + g;
+
+      if (selectedGenres.includes(g)) {
+        btn.classList.add("selected");
+      }
+
+      btn.addEventListener("click", () => {
+        if (selectedGenres.includes(g)) {
+          selectedGenres = selectedGenres.filter(x => x !== g);
+        } else {
+          selectedGenres.push(g);
+        }
+
+        renderGenrePicker();
+        search.focus();
+      });
+
+      container.appendChild(btn);
+    });
+  }
+
+  showOptions(POPULAR_GENRES, popularBox);
+  showOptions(OTHER_GENRES, othersBox);
+
+  tagsBox.innerHTML = "";
+
+  selectedGenres.forEach(g => {
+    const tag = document.createElement("span");
+    tag.className = "genre-tag";
+    tag.textContent = g;
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "×";
+    remove.addEventListener("click", () => {
+      selectedGenres = selectedGenres.filter(x => x !== g);
+      renderGenrePicker();
+    });
+
+    tag.appendChild(remove);
+    tagsBox.appendChild(tag);
+  });
+
+  menu.hidden = false;
+}
+
+function setSelectedGenres(value) {
+  selectedGenres = String(value || "")
+    .split(",")
+    .map(g => g.trim())
+    .filter(Boolean);
+
+  const search = document.getElementById("gn");
+  if (search) search.value = "";
+
+  renderGenrePicker();
+
+  const menu = document.getElementById("genreMenu");
+  if (menu) menu.hidden = true;
+}
+
+function getSelectedGenres() {
+  return selectedGenres.join(", ");
+}
+
+(function setupGenrePicker() {
+  const search = document.getElementById("gn");
+  const menu = document.getElementById("genreMenu");
+
+  if (!search || !menu) return;
+
+  search.addEventListener("focus", renderGenrePicker);
+  search.addEventListener("input", renderGenrePicker);
+
+  document.addEventListener("click", event => {
+    const field = document.getElementById("genreField");
+    if (field && !field.contains(event.target)) {
+      menu.hidden = true;
+    }
+  });
+})();
+</script></body></html>
