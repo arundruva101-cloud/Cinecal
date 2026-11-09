@@ -12,8 +12,5 @@ binding = "DB"
 database_name = "cinecal-db"
 database_id = "2efb9524-8a85-4fb9-befb-ed4ac38f73bf"
 
-[[r2_buckets]]
-binding = "POSTERS"
-bucket_name = "cinecal-posters"
 [vars]
 GDRIVE_UPLOAD_URL = "https://script.google.com/macros/s/AKfycbx9QJEqnOEOlAdebIBkQzhW_nzjtW3nurMfDnE0wE7BJBWIFsEtbg8inLwcOu2hQZTaZA/exec"
