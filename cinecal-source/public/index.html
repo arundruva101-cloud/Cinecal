@@ -190,15 +190,46 @@ input[type=text],input[type=date],input[type=password]{width:100%;background:var
 @media(max-width:560px){.day{min-height:94px;padding:0}.day .num{top:4px;left:4px;width:22px;height:22px;font-size:11px}.day .thumbs{gap:2px;border-radius:0}.movie-tile{border-radius:0}.movie-tile-title{left:2px;right:2px;bottom:2px;font-size:7px;-webkit-line-clamp:2}.movie-tile:after{inset:45% 0 0}.dow{padding:8px 2px;font-size:11px}.mb{flex-direction:column;align-items:center}.drop{width:130px}.f{width:100%}.ch{padding:14px}}
 @media(max-width:380px){.day{min-height:80px}.day .num{top:3px;left:3px;width:20px;height:20px;font-size:10px}.movie-tile-title{font-size:6px}}
 
-/* ===== Phone calendar header: arrows always stay inside the box ===== */
+/* ===== Phone layout: compact top bar, half-height calendar, scrollable movie list ===== */
 .cal{touch-action:pan-y}
 .ch h1{min-width:0}
 .nav{flex:none}
 @media(max-width:560px){
-  .ch{flex-direction:column;align-items:stretch;gap:12px;padding:14px 12px}
-  .ch h1{text-align:center;font-size:clamp(22px,7vw,28px)}
-  .nav{display:grid;grid-template-columns:52px minmax(0,1fr) 52px;gap:8px;width:100%}
-  .nav .btn{padding:10px 0;text-align:center;min-width:0}
+  .app{padding:10px 10px 24px}
+  /* top bar: logo + Admin + Suggest on ONE line */
+  header{flex-wrap:wrap;gap:8px;margin-bottom:10px}
+  .logo{font-size:19px;gap:7px}
+  .logo i{width:28px;height:28px;border-radius:8px;font-size:14px}
+  .acts{gap:6px;flex-wrap:wrap;margin-left:auto}
+  .acts .btn{padding:7px 11px;font-size:13px;white-space:nowrap;border-radius:9px}
+  /* calendar header: one row, arrows always inside the box */
+  .ch{flex-wrap:wrap;gap:8px;padding:9px 10px}
+  .ch h1{flex:1 1 auto;font-size:19px;white-space:nowrap}
+  .ch h1 span{margin-left:5px;font-size:15px}
+  .nav{gap:5px}
+  .nav .btn{padding:6px 0;min-width:36px;text-align:center;font-size:14px;border-radius:9px}
+  .nav #now{min-width:54px;font-size:13px}
+  /* calendar at about half its old height */
+  .dow{padding:5px 2px;font-size:10px}
+  .day{min-height:46px}
+  .day .num{top:2px;left:2px;width:16px;height:16px;font-size:9px;border-width:0}
+  .day .thumbs{gap:1px}
+  .movie-tile-title{display:none}
+  .movie-tile:after{display:none}
+  .movie-tile-more{font-size:11px}
+  /* Coming up: about 5-6 movies visible, then scroll inside the list */
+  .side{padding:12px;border-radius:16px}
+  .side h2{font-size:16px}
+  #list{max-height:540px;overflow-y:auto;padding-right:2px;-webkit-overflow-scrolling:touch}
+  #list .card{padding:8px;gap:10px}
+  #list .poster{width:48px}
+  .layout{gap:12px}
+}
+@media(max-width:380px){
+  .logo{font-size:17px}
+  .acts .btn{padding:7px 9px;font-size:12px}
+  .day{min-height:44px}
+  .ch h1{font-size:17px}
 }
 </style></head><body>
 <div class="app">
