@@ -1,8 +1,5 @@
 <!doctype html>
 <html lang="en"><head><meta name="viewport" content="width=device-width, initial-scale=1"><meta charset="utf-8">
-  <link rel="icon" type="image/png" href="/favicon.png">
-<link rel="apple-touch-icon" href="/favicon.png">
-  
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
@@ -188,10 +185,21 @@ input[type=text],input[type=date],input[type=password]{width:100%;background:var
 @media(max-width:560px){.date-modal{border-radius:16px;padding:14px}.date-modal-head{flex-direction:column}.date-modal-actions{width:100%}.date-modal-actions .btn{flex:1}.date-movie-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.date-movie-info{padding:10px}.date-movie-info h3{font-size:14px}}
 @media(max-width:360px){.date-movie-grid{grid-template-columns:1fr 1fr}}
 
-@media(max-width:960px){.layout{grid-template-columns:1fr}.side{order:1;max-height:none}.cal{order:2}}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.cal{order:1}.side{order:2;max-height:none}}
 @media(max-width:960px){.day{min-height:148px}}
 @media(max-width:560px){.day{min-height:94px;padding:0}.day .num{top:4px;left:4px;width:22px;height:22px;font-size:11px}.day .thumbs{gap:2px;border-radius:0}.movie-tile{border-radius:0}.movie-tile-title{left:2px;right:2px;bottom:2px;font-size:7px;-webkit-line-clamp:2}.movie-tile:after{inset:45% 0 0}.dow{padding:8px 2px;font-size:11px}.mb{flex-direction:column;align-items:center}.drop{width:130px}.f{width:100%}.ch{padding:14px}}
 @media(max-width:380px){.day{min-height:80px}.day .num{top:3px;left:3px;width:20px;height:20px;font-size:10px}.movie-tile-title{font-size:6px}}
+
+/* ===== Phone calendar header: arrows always stay inside the box ===== */
+.cal{touch-action:pan-y}
+.ch h1{min-width:0}
+.nav{flex:none}
+@media(max-width:560px){
+  .ch{flex-direction:column;align-items:stretch;gap:12px;padding:14px 12px}
+  .ch h1{text-align:center;font-size:clamp(22px,7vw,28px)}
+  .nav{display:grid;grid-template-columns:52px minmax(0,1fr) 52px;gap:8px;width:100%}
+  .nav .btn{padding:10px 0;text-align:center;min-width:0}
+}
 </style></head><body>
 <div class="app">
 <header><button class="logo" id="homeLogo" type="button" aria-label="CineCal home — go to today"><i>🎬</i>CineCal</button>
@@ -413,8 +421,31 @@ $("#impf").onchange=e=>{
     }
     toast("Import finished");refresh()};
   r.readAsText(f)};
-$("#prev").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};
-$("#next").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);render()};
+$("#prev").onclick=()=>changeMonth(-1);
+$("#next").onclick=()=>changeMonth(1);
+function changeMonth(step){
+  const cal=$(".cal");
+  view=new Date(view.getFullYear(),view.getMonth()+step,1);
+  highlightDate=null;
+  render();
+  cal.classList.remove("calendar-enter-next","calendar-enter-prev");
+  void cal.offsetWidth;
+  cal.classList.add(step>0?"calendar-enter-next":"calendar-enter-prev");
+  if(calendarAnimTimer)clearTimeout(calendarAnimTimer);
+  calendarAnimTimer=setTimeout(()=>{cal.classList.remove("calendar-enter-next","calendar-enter-prev");calendarAnimTimer=null},460);
+}
+(function setupSwipe(){
+  const cal=$(".cal");let sx=0,sy=0,tracking=false;
+  cal.addEventListener("touchstart",e=>{
+    if(e.touches.length!==1){tracking=false;return}
+    sx=e.touches[0].clientX;sy=e.touches[0].clientY;tracking=true;
+  },{passive:true});
+  cal.addEventListener("touchend",e=>{
+    if(!tracking)return;tracking=false;
+    const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5)changeMonth(dx<0?1:-1);
+  },{passive:true});
+})();
 function goToToday(){navigateToMovieDate(iso(new Date()))}
 $("#now").onclick=goToToday;
 $("#homeLogo").onclick=goToToday;
