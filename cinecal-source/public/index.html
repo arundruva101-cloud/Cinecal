@@ -261,7 +261,12 @@ html.splash-lock,html.splash-lock body{overflow:hidden}
 @keyframes glow{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(.92)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}}
 @keyframes slide{0%{left:-45%}100%{left:105%}}
 @media(prefers-reduced-motion:reduce){#splash .icon,#splash .glow,#splash .bar i{animation:none}#splash .bar i{left:30%}}
-</style></head><body>
+.mb{align-items:flex-start}
+.drop{align-self:flex-start;height:auto;aspect-ratio:2/3}
+@media(max-width:560px){
+  .mb{align-items:center}
+  .drop{align-self:center}
+}</style></head><body>
 <div id="splash" role="status" aria-live="polite" aria-label="Loading">
   <div class="glow"></div>
   <div class="stack">
