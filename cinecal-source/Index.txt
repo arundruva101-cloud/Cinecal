@@ -3,110 +3,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-  /* ===== CineCal Genre Selector Design ===== */
-
-.genre-field {
-  position: relative;
-  width: 100%;
-}
-
-.genre-control {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 7px;
-  border: 1px solid #444;
-  border-radius: 8px;
-  background: #171717;
-}
-
-.genre-control input {
-  flex: 1;
-  min-width: 130px;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: white;
-  padding: 6px;
-}
-
-.genre-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-.genre-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 9px;
-  border-radius: 20px;
-  background: #245b9b;
-  color: white;
-  font-size: 12px;
-}
-
-.genre-tag button {
-  border: none;
-  background: transparent;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 0;
-}
-
-.genre-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  max-height: 280px;
-  overflow-y: auto;
-  margin-top: 5px;
-  padding: 12px;
-  border: 1px solid #444;
-  border-radius: 10px;
-  background: #202020;
-  box-shadow: 0 8px 20px rgba(0,0,0,.4);
-}
-
-.genre-menu[hidden] {
-  display: none;
-}
-
-.genre-heading {
-  color: #aaa;
-  font-size: 12px;
-  font-weight: bold;
-  margin: 7px 0;
-  text-transform: uppercase;
-}
-
-.genre-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-bottom: 12px;
-}
-
-.genre-option {
-  padding: 7px 11px;
-  border: 1px solid #555;
-  border-radius: 20px;
-  background: #303030;
-  color: white;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.genre-option.selected {
-  background: #245b9b;
-  border-color: #4b9cff;
-}
 :root{--bg:#090c13;--s:#111723;--s2:#171e2d;--line:#222b3f;--t:#eef0f6;--m:#9ba5ba;--a:#e03a52;--soft:rgba(224,58,82,.16);--ok:#3ecf8e;--h:"Bricolage Grotesque",system-ui,sans-serif;color-scheme:dark}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:15px/1.5 Inter,system-ui,sans-serif}
 button,input{font:inherit;color:inherit}button{cursor:pointer}:focus-visible{outline:2px solid var(--a);outline-offset:2px}
@@ -165,6 +61,28 @@ input[type=text],input[type=date],input[type=password]{width:100%;background:var
 .err{color:var(--a);font-size:13px;min-height:18px}.ba{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
 .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:var(--t);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30}.toast.show{opacity:1;transform:translate(-50%,0)}
 
+/* ===== Genre selector (matches the app theme) ===== */
+.genre-field{position:relative;width:100%}
+.genre-control{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:44px;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:var(--s2);cursor:text}
+.genre-control:focus-within{border-color:var(--a)}
+.genre-control input[type=text]{flex:1;min-width:120px;width:auto;border:0;background:transparent;padding:6px 4px;border-radius:0}
+.genre-control input[type=text]:focus{outline:0}
+.genre-tags{display:contents}
+.genre-tag{display:inline-flex;align-items:center;gap:2px;padding:3px 4px 3px 10px;border-radius:99px;background:var(--soft);color:var(--a);font-size:13px;font-weight:600}
+.genre-tag button{border:0;background:transparent;color:inherit;font-size:17px;line-height:1;padding:2px 6px;border-radius:50%}
+.genre-tag button:hover{background:var(--a);color:#fff}
+.genre-menu{margin-top:8px;padding:0 12px 4px;max-height:270px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.genre-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 -12px 10px;padding:9px 12px;background:var(--bg);border-bottom:1px solid var(--line);font-size:13px;font-weight:600;color:var(--m)}
+.genre-bar.full span{color:var(--a)}
+.genre-menu[hidden],.genre-heading[hidden],.genre-none[hidden]{display:none}
+.genre-heading{color:var(--m);font-size:12px;font-weight:600;margin:4px 0 8px}
+.genre-options{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.genre-option{padding:6px 12px;border:1px solid var(--line);border-radius:99px;background:var(--s2);font-size:13px}
+.genre-option:hover{border-color:var(--a)}
+.genre-option.selected{background:var(--a);border-color:var(--a);color:#fff}
+.genre-option:disabled{opacity:.4;cursor:not-allowed}.genre-option:disabled:hover{border-color:var(--line)}
+.genre-none{color:var(--m);font-size:13px}
+
 /* ===== Date details: large poster gallery ===== */
 .date-ov{position:fixed;inset:0;z-index:25;display:none;align-items:center;justify-content:center;padding:clamp(10px,3vw,28px);background:rgba(3,5,9,.86);backdrop-filter:blur(8px)}
 .date-ov.open{display:flex}
@@ -217,15 +135,17 @@ input[type=text],input[type=date],input[type=password]{width:100%;background:var
 <div><label for="dt">Release date</label><input type="date" id="dt"></div>
 <div class="genre-field" id="genreField">
   <label for="gn">Genre</label>
-  <div class="genre-control">
+  <div class="genre-control" id="genreControl">
     <div class="genre-tags" id="genreTags"></div>
-    <input type="text" id="gn" placeholder="Select or search genres..." autocomplete="off">
+    <input type="text" id="gn" placeholder="Search or pick genres" autocomplete="off" maxlength="30">
   </div>
   <div class="genre-menu" id="genreMenu" hidden>
+    <div class="genre-bar" id="genreBar"><span id="genreCount">Choose up to 4 genres</span><button type="button" class="btn p sm" id="genreDone">Done</button></div>
     <div class="genre-heading">Popular</div>
     <div id="genrePopular" class="genre-options"></div>
     <div class="genre-heading">Others</div>
     <div id="genreOthers" class="genre-options"></div>
+    <div class="genre-none" id="genreNone" hidden>No match. Press Enter to add it as a new genre.</div>
   </div>
 </div><div class="err" id="err"></div></div></div>
 <input type="file" id="file" accept="image/*" hidden>
@@ -409,130 +329,114 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeM();closeDateD
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)refresh()});
 setInterval(()=>{if(!document.hidden)refresh()},60000);
 render();refresh();
+
 // ===== CineCal Multi-Genre Selector =====
-
-const POPULAR_GENRES = [
-  "Action",
-  "Adventure",
-  "Comedy",
-  "Crime",
-  "Horror",
-  "Thriller"
+const POPULAR_GENRES=["Action","Adventure","Comedy","Crime","Horror","Thriller"];
+const OTHER_GENRES=[
+  "Animation","Anime","Biography","Documentary","Drama",
+  "Family","Fantasy","Historical","History","Martial Arts",
+  "Mystery","Musical","Music","Romance","Sci-Fi","Sport",
+  "Superhero","Supernatural","War","Western","Psychological",
+  "Political","Suspense","Survival","Disaster","Detective",
+  "Gangster","Heist","Spy","Zombie","Vampire","Monster",
+  "Coming-of-Age","Teen","Parody","Satire","Dark Comedy",
+  "Romantic Comedy","Romantic Drama","Psychological Thriller",
+  "Psychological Horror","Crime Thriller","Action Thriller",
+  "Time Travel","Post-Apocalyptic","Dystopian","Cyberpunk",
+  "Mythology","Religious","Short Film","Experimental"
 ];
+const MAX_GENRES=4; // a movie can have at most 4 genres
+let selectedGenres=[];
+const gid=id=>document.getElementById(id);
 
-const OTHER_GENRES = [
-  "Animation", "Anime", "Biography", "Documentary", "Drama",
-  "Family", "Fantasy", "Historical", "History", "Martial Arts",
-  "Mystery", "Musical", "Music", "Romance", "Sci-Fi", "Sport",
-  "Superhero", "Supernatural", "War", "Western", "Psychological",
-  "Political", "Suspense", "Survival", "Disaster", "Detective",
-  "Gangster", "Heist", "Spy", "Zombie", "Vampire", "Monster",
-  "Coming-of-Age", "Teen", "Parody", "Satire", "Dark Comedy",
-  "Romantic Comedy", "Romantic Drama", "Psychological Thriller",
-  "Psychological Horror", "Crime Thriller", "Action Thriller",
-  "Time Travel", "Post-Apocalyptic", "Dystopian", "Cyberpunk",
-  "Mythology", "Religious", "Short Film", "Experimental"
-];
+// open=true shows the menu; open=false leaves it as it is.
+function renderGenrePicker(open){
+  const search=gid("gn"),menu=gid("genreMenu");
+  if(!search||!menu)return;
+  const q=search.value.trim().toLowerCase();
+  const full=selectedGenres.length>=MAX_GENRES;
 
-let selectedGenres = [];
-
-function renderGenrePicker() {
-  const search = document.getElementById("gn");
-  const menu = document.getElementById("genreMenu");
-  const popularBox = document.getElementById("genrePopular");
-  const othersBox = document.getElementById("genreOthers");
-  const tagsBox = document.getElementById("genreTags");
-
-  if (!search || !menu || !popularBox || !othersBox || !tagsBox) return;
-
-  const query = search.value.trim().toLowerCase();
-
-  function showOptions(list, container) {
-    container.innerHTML = "";
-
-    list.filter(g => g.toLowerCase().includes(query)).forEach(g => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "genre-option";
-      btn.textContent = (selectedGenres.includes(g) ? "✓ " : "") + g;
-
-      if (selectedGenres.includes(g)) {
-        btn.classList.add("selected");
-      }
-
-      btn.addEventListener("click", () => {
-        if (selectedGenres.includes(g)) {
-          selectedGenres = selectedGenres.filter(x => x !== g);
-        } else {
-          selectedGenres.push(g);
-        }
-
-        renderGenrePicker();
-        search.focus();
-      });
-
-      container.appendChild(btn);
+  const fill=(list,box)=>{
+    box.replaceChildren();
+    const hits=list.filter(g=>g.toLowerCase().includes(q));
+    hits.forEach(g=>{
+      const on=selectedGenres.includes(g),b=document.createElement("button");
+      b.type="button";b.className="genre-option"+(on?" selected":"");
+      b.disabled=full&&!on;
+      b.textContent=(on?"✓ ":"")+g;
+      b.onclick=()=>toggleGenre(g);
+      box.append(b);
     });
-  }
+    box.previousElementSibling.hidden=!hits.length; // hide a heading when its group is empty
+    return hits.length;
+  };
+  const n=fill(POPULAR_GENRES,gid("genrePopular"))+fill(OTHER_GENRES,gid("genreOthers"));
+  gid("genreNone").hidden=n>0||!q;
 
-  showOptions(POPULAR_GENRES, popularBox);
-  showOptions(OTHER_GENRES, othersBox);
-
-  tagsBox.innerHTML = "";
-
-  selectedGenres.forEach(g => {
-    const tag = document.createElement("span");
-    tag.className = "genre-tag";
-    tag.textContent = g;
-
-    const remove = document.createElement("button");
-    remove.type = "button";
-    remove.textContent = "×";
-    remove.addEventListener("click", () => {
-      selectedGenres = selectedGenres.filter(x => x !== g);
-      renderGenrePicker();
-    });
-
-    tag.appendChild(remove);
-    tagsBox.appendChild(tag);
+  const tags=gid("genreTags");tags.replaceChildren();
+  selectedGenres.forEach(g=>{
+    const t=document.createElement("span");t.className="genre-tag";t.append(document.createTextNode(g));
+    const x=document.createElement("button");
+    x.type="button";x.textContent="×";x.setAttribute("aria-label","Remove "+g);
+    x.onclick=()=>{selectedGenres=selectedGenres.filter(v=>v!==g);renderGenrePicker(true);search.focus()};
+    t.append(x);tags.append(t);
   });
-
-  menu.hidden = false;
+  gid("genreCount").textContent=full?MAX_GENRES+" of "+MAX_GENRES+" picked. Remove one to change.":selectedGenres.length+" of "+MAX_GENRES+" picked. Choose up to "+MAX_GENRES+".";
+  gid("genreBar").classList.toggle("full",full);
+  search.placeholder=full?"Limit reached":"Search or pick genres";
+  if(open)menu.hidden=false;
 }
 
-function setSelectedGenres(value) {
-  selectedGenres = String(value || "")
-    .split(",")
-    .map(g => g.trim())
-    .filter(Boolean);
-
-  const search = document.getElementById("gn");
-  if (search) search.value = "";
-
-  renderGenrePicker();
-
-  const menu = document.getElementById("genreMenu");
-  if (menu) menu.hidden = true;
+// Pick or un-pick a genre, then clear the search box so the full list comes back.
+function toggleGenre(g){
+  if(!selectedGenres.includes(g)&&selectedGenres.length>=MAX_GENRES){toast("You can pick up to "+MAX_GENRES+" genres");return}
+  selectedGenres=selectedGenres.includes(g)?selectedGenres.filter(v=>v!==g):selectedGenres.concat(g);
+  gid("gn").value="";
+  renderGenrePicker(true);
+  gid("gn").focus();
 }
 
-function getSelectedGenres() {
-  return selectedGenres.join(", ");
+// Enter: use the first matching genre, or add the typed text as a new genre.
+function commitTypedGenre(){
+  const raw=gid("gn").value.replace(/,/g," ").replace(/\s+/g," ").trim();
+  if(!raw)return;
+  const hit=POPULAR_GENRES.concat(OTHER_GENRES).find(g=>g.toLowerCase().includes(raw.toLowerCase()));
+  const g=hit||raw.replace(/\b\w/g,c=>c.toUpperCase()).slice(0,30);
+  if(selectedGenres.length>=MAX_GENRES){toast("You can pick up to "+MAX_GENRES+" genres");return}
+  if(!selectedGenres.some(v=>v.toLowerCase()===g.toLowerCase()))selectedGenres.push(g);
+  gid("gn").value="";
+  renderGenrePicker(true);
 }
 
-(function setupGenrePicker() {
-  const search = document.getElementById("gn");
-  const menu = document.getElementById("genreMenu");
+function setSelectedGenres(value){
+  selectedGenres=String(value||"").split(",").map(g=>g.trim()).filter(Boolean).slice(0,MAX_GENRES);
+  gid("gn").value="";
+  renderGenrePicker(false);
+  gid("genreMenu").hidden=true;
+}
 
-  if (!search || !menu) return;
+function getSelectedGenres(){return selectedGenres.join(", ")}
 
-  search.addEventListener("focus", renderGenrePicker);
-  search.addEventListener("input", renderGenrePicker);
-
-  document.addEventListener("click", event => {
-    const field = document.getElementById("genreField");
-    if (field && !field.contains(event.target)) {
-      menu.hidden = true;
-    }
+(function setupGenrePicker(){
+  const search=gid("gn");
+  if(!search)return;
+  search.addEventListener("focus",()=>{renderGenrePicker(true);setTimeout(()=>gid("genreMenu").scrollIntoView({block:"nearest",behavior:"smooth"}),60)});
+  search.addEventListener("input",()=>renderGenrePicker(true));
+  search.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){e.preventDefault();commitTypedGenre()}
+    else if(e.key==="Backspace"&&!search.value&&selectedGenres.length){selectedGenres.pop();renderGenrePicker(true)}
+    else if(e.key==="Escape"&&!gid("genreMenu").hidden){e.stopPropagation();gid("genreMenu").hidden=true}
+  });
+  gid("genreControl").addEventListener("click",()=>{search.focus();renderGenrePicker(true)});
+  // Visible way out: the Done button closes the genre list.
+  gid("genreDone").addEventListener("click",()=>{
+    search.value="";search.blur();
+    renderGenrePicker(false);
+    gid("genreMenu").hidden=true;
+  });
+  // pointerdown fires before any re-render, so the clicked button is still in the page.
+  document.addEventListener("pointerdown",e=>{
+    if(!e.target.closest("#genreField"))gid("genreMenu").hidden=true;
   });
 })();
 </script></body></html>
