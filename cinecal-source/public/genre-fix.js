@@ -65,6 +65,18 @@
   var $ = function (id) { return document.getElementById(id); };
   var input = $("gpInput"), menu = $("gpMenu");
   var selected = [];
+     // ফোনে কিবোর্ড বন্ধ: শুধু ট্যাপ করে জনরা বাছা যাবে
+  var mq = window.matchMedia("(max-width:560px)");
+  function applyPhoneMode() {
+    var on = mq.matches;
+    input.readOnly = on;
+    input.setAttribute("inputmode", on ? "none" : "text");
+    input.style.caretColor = on ? "transparent" : "";
+    input.style.cursor = on ? "pointer" : "";
+    if (on) input.value = "";
+  }
+  applyPhoneMode();
+  if (mq.addEventListener) mq.addEventListener("change", applyPhoneMode);
 
   function say(t) { if (typeof toast === "function") toast(t); }
 
@@ -115,7 +127,7 @@
       ? MAX + " of " + MAX + " picked. Remove one to change."
       : selected.length + " of " + MAX + " picked. Choose up to " + MAX + ".";
     $("gpBar").classList.toggle("full", full);
-    input.placeholder = full ? "Limit reached" : "Search or pick genres";
+    input.placeholder = full ? "Limit reached" : (mq.matches ? "Tap to pick genres" : "Search or pick genres");
     if (open) menu.hidden = false;
   }
 
