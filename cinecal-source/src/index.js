@@ -294,9 +294,16 @@ async function notifyTelegram(movie, hasPoster, origin, env) {
 
 // ===== Delete a rejected/removed poster from Google Drive =====
 async function deleteDrivePoster(fileId, env) {
-  if (!fileId || !env.GDRIVE_UPLOAD_URL || !env.GDRIVE_UPLOAD_TOKEN) return;
+  if (!fileId || !env.GDRIVE_UPLOAD_URL || !env.GDRIVE_UPLOAD_TOKEN) {
+    console.error("Delete skipped: missing fileId or Drive settings", {
+      hasFileId: !!fileId,
+      hasUrl: !!env.GDRIVE_UPLOAD_URL,
+      hasToken: !!env.GDRIVE_UPLOAD_TOKEN
+    });
+    return;
+  }
   try {
-    await fetch(env.GDRIVE_UPLOAD_URL, {
+    const response = await fetch(env.GDRIVE_UPLOAD_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -305,5 +312,9 @@ async function deleteDrivePoster(fileId, env) {
         id: fileId
       })
     });
-  } catch (e) {}
+    const text = await response.text();
+    console.log("Drive delete:", fileId, response.status, text.slice(0, 300));
+  } catch (e) {
+    console.error("Drive delete error:", e.message);
+  }
 }
