@@ -4,15 +4,15 @@
 <link rel="icon" type="image/png" href="/favicon.png?v=2">
 <link rel="apple-touch-icon" href="/favicon.png?v=2">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
+ 
 <style>
   /* ===== CineCal Genre Selector Design ===== */
-
+ 
 .genre-field {
   position: relative;
   width: 100%;
 }
-
+ 
 .genre-control {
   display: flex;
   flex-wrap: wrap;
@@ -24,7 +24,7 @@
   border-radius: 8px;
   background: #171717;
 }
-
+ 
 .genre-control input {
   flex: 1;
   min-width: 130px;
@@ -34,13 +34,13 @@
   color: white;
   padding: 6px;
 }
-
+ 
 .genre-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
 }
-
+ 
 .genre-tag {
   display: inline-flex;
   align-items: center;
@@ -51,7 +51,7 @@
   color: white;
   font-size: 12px;
 }
-
+ 
 .genre-tag button {
   border: none;
   background: transparent;
@@ -60,7 +60,7 @@
   font-size: 16px;
   padding: 0;
 }
-
+ 
 .genre-menu {
   position: absolute;
   top: 100%;
@@ -76,11 +76,11 @@
   background: #202020;
   box-shadow: 0 8px 20px rgba(0,0,0,.4);
 }
-
+ 
 .genre-menu[hidden] {
   display: none;
 }
-
+ 
 .genre-heading {
   color: #aaa;
   font-size: 12px;
@@ -88,14 +88,14 @@
   margin: 7px 0;
   text-transform: uppercase;
 }
-
+ 
 .genre-options {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
   margin-bottom: 12px;
 }
-
+ 
 .genre-option {
   padding: 7px 11px;
   border: 1px solid #555;
@@ -105,7 +105,7 @@
   cursor: pointer;
   font-size: 12px;
 }
-
+ 
 .genre-option.selected {
   background: #245b9b;
   border-color: #4b9cff;
@@ -167,7 +167,7 @@ button.card:hover{border-color:var(--line)}
 input[type=text],input[type=date],input[type=password]{width:100%;background:var(--s2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}input:focus{border-color:var(--a);outline:0}
 .err{color:var(--a);font-size:13px;min-height:18px}.ba{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
 .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:var(--t);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30}.toast.show{opacity:1;transform:translate(-50%,0)}
-
+ 
 /* ===== Date details: large poster gallery ===== */
 .date-ov{position:fixed;inset:0;z-index:25;display:none;align-items:center;justify-content:center;padding:clamp(10px,3vw,28px);background:rgba(3,5,9,.86);backdrop-filter:blur(8px)}
 .date-ov.open{display:flex}
@@ -187,12 +187,12 @@ input[type=text],input[type=date],input[type=password]{width:100%;background:var
 .date-edit{margin-top:12px}
 @media(max-width:560px){.date-modal{border-radius:16px;padding:14px}.date-modal-head{flex-direction:column}.date-modal-actions{width:100%}.date-modal-actions .btn{flex:1}.date-movie-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.date-movie-info{padding:10px}.date-movie-info h3{font-size:14px}}
 @media(max-width:360px){.date-movie-grid{grid-template-columns:1fr 1fr}}
-
+ 
 @media(max-width:960px){.layout{grid-template-columns:1fr}.cal{order:1}.side{order:2;max-height:none}}
 @media(max-width:960px){.day{min-height:148px}}
 @media(max-width:560px){.day{min-height:94px;padding:0}.day .num{top:4px;left:4px;width:22px;height:22px;font-size:11px}.day .thumbs{gap:2px;border-radius:0}.movie-tile{border-radius:0}.movie-tile-title{left:2px;right:2px;bottom:2px;font-size:7px;-webkit-line-clamp:2}.movie-tile:after{inset:45% 0 0}.dow{padding:8px 2px;font-size:11px}.mb{flex-direction:column;align-items:center}.drop{width:130px}.f{width:100%}.ch{padding:14px}}
 @media(max-width:380px){.day{min-height:80px}.day .num{top:3px;left:3px;width:20px;height:20px;font-size:10px}.movie-tile-title{font-size:6px}}
-
+ 
 /* ===== Phone layout: compact top bar, half-height calendar, scrollable movie list ===== */
 .cal{touch-action:pan-y}
 .ch h1{min-width:0}
@@ -292,7 +292,7 @@ const CineLoader=(()=>{
   };
 })();
 setTimeout(()=>CineLoader.done(),12000);
-
+ 
 </script>
 <div class="app">
 <header><button class="logo" id="homeLogo" type="button" aria-label="CineCal home — go to today"><i>🎬</i>CineCal</button>
@@ -301,7 +301,7 @@ setTimeout(()=>CineLoader.done(),12000);
 <button class="btn" id="login">Admin</button><button class="btn p" id="add">Suggest a movie</button></div></header>
 <div class="layout"><aside class="side"><div id="pendBox" hidden><h2>Waiting for approval</h2><div class="list pend" id="pend"></div></div><h2>Coming up</h2><div class="list" id="list"></div></aside>
 <main class="cal"><div class="ch"><h1 id="title"></h1><div class="nav"><button class="btn" id="prev" aria-label="Previous month">‹</button><button class="btn" id="now">Today</button><button class="btn" id="next" aria-label="Next month">›</button></div></div><div class="grid" id="grid"></div></main></div></div>
-
+ 
 <div class="date-ov" id="dateOv" aria-hidden="true">
   <section class="date-modal" role="dialog" aria-modal="true" aria-labelledby="dateTitle">
     <div class="date-modal-head">
@@ -314,7 +314,7 @@ setTimeout(()=>CineLoader.done(),12000);
     <div class="date-movie-grid" id="dateMovies"></div>
   </section>
 </div>
-
+ 
 <div class="ov" id="ov"><div class="modal" role="dialog" aria-modal="true"><h3 id="mt"></h3><p class="hint" id="mh"></p>
 <div class="mb"><div class="drop" id="drop" tabindex="0" role="button">Add poster</div><div class="f">
 <div><label for="nm">Movie title</label><input type="text" id="nm" maxlength="80"></div>
@@ -334,12 +334,12 @@ setTimeout(()=>CineLoader.done(),12000);
 </div><div class="err" id="err"></div></div></div>
 <input type="file" id="file" accept="image/*" hidden>
 <div class="ba"><button class="btn d" id="del" hidden>Delete</button><button class="btn" id="cancel">Cancel</button><button class="btn p" id="save"></button></div></div></div>
-
+ 
 <div class="ov" id="lov"><div class="modal" style="width:min(380px,100%)"><h3>Admin sign in</h3><p class="hint">Enter your admin passcode.</p>
 <input type="password" id="pw" autocomplete="off"><div class="err" id="lerr"></div>
 <div class="ba"><button class="btn" id="lcancel">Cancel</button><button class="btn p" id="lgo">Sign in</button></div></div></div>
 <div class="toast" id="toast" role="status"></div>
-
+ 
 <script>
 const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,"0");
 const api=async(f,...a)=>{
@@ -363,8 +363,10 @@ const msg=e=>(e&&e.message||String(e)).replace(/^Error:\s*/,"");
 function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function pe(m){if(m.poster){const i=el("img","poster");i.src=purl(m.poster);i.alt=m.title+" poster";return i}return el("div","poster",(m.title[0]||"?").toUpperCase())}
 const fmt=s=>{const d=parse(s);return DW[d.getDay()]+", "+MO[d.getMonth()].slice(0,3)+" "+d.getDate()+", "+d.getFullYear()};
+function ago(iso){const s=Math.max(0,Math.round((Date.now()-new Date(iso))/1000));if(s<60)return"just now";const m=Math.floor(s/60);if(m<60)return m+(m===1?" minute":" minutes")+" ago";const h=Math.floor(m/60);if(h<24)return h+(h===1?" hour":" hours")+" ago";const d=Math.floor(h/24);return d+(d===1?" day":" days")+" ago"}
+function sentAt(iso){return new Date(iso).toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}
 function cd(s){const t=new Date();t.setHours(0,0,0,0);const n=Math.round((parse(s)-t)/864e5);return n<0?["Released",0]:n===0?["Out today",1]:n===1?["Tomorrow",1]:["In "+n+" days",n<=7]}
-
+ 
 async function refresh(){
   try{
     if(pass){const all=await api("adminList",pass);movies=all.filter(m=>m.status==="approved");pending=all.filter(m=>m.status==="pending")}
@@ -378,6 +380,7 @@ function render(){
   const pb=$("#pend");pb.replaceChildren();
   if(!pending.length){pb.append(el("div","empty","No suggestions waiting."))}
   pending.forEach(m=>{const c=el("div","card"),i=el("div");i.append(el("b",null,m.title),el("div","meta",fmt(m.date)+(m.genre?", "+m.genre:"")));
+    if(m.created){const w=el("div","meta sent-at","Suggested "+ago(m.created)+" · "+sentAt(m.created));if(Date.now()-new Date(m.created)>864e5)w.style.color="var(--a)";i.append(w)}
     const r=el("div","row"),a=el("button","btn p sm","Approve"),x=el("button","btn sm","Reject");
     a.onclick=()=>act("approve",m.id,"Approved");x.onclick=()=>act("remove",m.id,"Rejected");r.append(a,x);i.append(r);c.append(pe(m),i);pb.append(c)});
   const lb=$("#list");lb.replaceChildren();const today=iso(new Date());
@@ -407,7 +410,7 @@ function render(){
     }
     cell.onclick=()=>openDateDetails(s);g.append(cell)}
 }
-
+ 
 // Navigate the calendar to a movie's release date and briefly highlight that day.
 function navigateToMovieDate(dateString){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(String(dateString||"")))return;
@@ -416,11 +419,11 @@ function navigateToMovieDate(dateString){
   const currentView=new Date(view.getFullYear(),view.getMonth(),1);
   const direction=nextView>=currentView?"next":"prev";
   highlightDate=dateString;
-
+ 
   const cal=$(".cal");
   cal.classList.remove("calendar-enter-next","calendar-enter-prev");
   if(calendarAnimTimer)clearTimeout(calendarAnimTimer);
-
+ 
   // Render immediately when already on the same month; otherwise animate the new month in.
   view=nextView;
   render();
@@ -432,15 +435,15 @@ function navigateToMovieDate(dateString){
       calendarAnimTimer=null;
     },460);
   }
-
+ 
   // On smaller screens, bring the calendar into view after selecting a movie.
   if(window.matchMedia("(max-width: 960px)").matches){
     cal.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
   }
 }
-
+ 
 async function act(fn,id,done){try{await api(fn,pass,id);toast(done);refresh()}catch(e){toast(msg(e))}}
-
+ 
 function setP(p,shown){poster=p;const d=$("#drop");d.classList.toggle("has",!!shown);d.style.backgroundImage=shown?"url("+shown+")":"";d.textContent=shown?"":"Add poster"}
 function openM(m,date){
   editId=m?m.id:null;oldPoster=m?m.poster:null;
@@ -493,7 +496,7 @@ $("#save").onclick=async()=>{
   }catch(e){$("#err").textContent=msg(e)}finally{b.disabled=false}};
 $("#del").onclick=()=>{closeM();act("remove",editId,"Movie deleted")};
 $("#cancel").onclick=closeM;
-
+ 
 function logout(){pass=null;pending=[];refresh()}
 $("#login").onclick=()=>{if(pass)return logout();$("#pw").value="";$("#lerr").textContent="";$("#lov").classList.add("open");setTimeout(()=>$("#pw").focus(),30)};
 $("#lcancel").onclick=()=>$("#lov").classList.remove("open");
@@ -547,7 +550,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)refresh()}
 setInterval(()=>{if(!document.hidden)refresh()},60000);
 render();refresh().finally(()=>CineLoader.done());
 // ===== CineCal Multi-Genre Selector =====
-
+ 
 const POPULAR_GENRES = [
   "Action",
   "Adventure",
@@ -556,7 +559,7 @@ const POPULAR_GENRES = [
   "Horror",
   "Thriller"
 ];
-
+ 
 const OTHER_GENRES = [
   "Animation", "Anime", "Biography", "Documentary", "Drama",
   "Family", "Fantasy", "Historical", "History", "Martial Arts",
@@ -570,58 +573,58 @@ const OTHER_GENRES = [
   "Time Travel", "Post-Apocalyptic", "Dystopian", "Cyberpunk",
   "Mythology", "Religious", "Short Film", "Experimental"
 ];
-
+ 
 let selectedGenres = [];
-
+ 
 function renderGenrePicker() {
   const search = document.getElementById("gn");
   const menu = document.getElementById("genreMenu");
   const popularBox = document.getElementById("genrePopular");
   const othersBox = document.getElementById("genreOthers");
   const tagsBox = document.getElementById("genreTags");
-
+ 
   if (!search || !menu || !popularBox || !othersBox || !tagsBox) return;
-
+ 
   const query = search.value.trim().toLowerCase();
-
+ 
   function showOptions(list, container) {
     container.innerHTML = "";
-
+ 
     list.filter(g => g.toLowerCase().includes(query)).forEach(g => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "genre-option";
       btn.textContent = (selectedGenres.includes(g) ? "✓ " : "") + g;
-
+ 
       if (selectedGenres.includes(g)) {
         btn.classList.add("selected");
       }
-
+ 
       btn.addEventListener("click", () => {
         if (selectedGenres.includes(g)) {
           selectedGenres = selectedGenres.filter(x => x !== g);
         } else {
           selectedGenres.push(g);
         }
-
+ 
         renderGenrePicker();
         search.focus();
       });
-
+ 
       container.appendChild(btn);
     });
   }
-
+ 
   showOptions(POPULAR_GENRES, popularBox);
   showOptions(OTHER_GENRES, othersBox);
-
+ 
   tagsBox.innerHTML = "";
-
+ 
   selectedGenres.forEach(g => {
     const tag = document.createElement("span");
     tag.className = "genre-tag";
     tag.textContent = g;
-
+ 
     const remove = document.createElement("button");
     remove.type = "button";
     remove.textContent = "×";
@@ -629,42 +632,42 @@ function renderGenrePicker() {
       selectedGenres = selectedGenres.filter(x => x !== g);
       renderGenrePicker();
     });
-
+ 
     tag.appendChild(remove);
     tagsBox.appendChild(tag);
   });
-
+ 
   menu.hidden = false;
 }
-
+ 
 function setSelectedGenres(value) {
   selectedGenres = String(value || "")
     .split(",")
     .map(g => g.trim())
     .filter(Boolean);
-
+ 
   const search = document.getElementById("gn");
   if (search) search.value = "";
-
+ 
   renderGenrePicker();
-
+ 
   const menu = document.getElementById("genreMenu");
   if (menu) menu.hidden = true;
 }
-
+ 
 function getSelectedGenres() {
   return selectedGenres.join(", ");
 }
-
+ 
 (function setupGenrePicker() {
   const search = document.getElementById("gn");
   const menu = document.getElementById("genreMenu");
-
+ 
   if (!search || !menu) return;
-
+ 
   search.addEventListener("focus", renderGenrePicker);
   search.addEventListener("input", renderGenrePicker);
-
+ 
   document.addEventListener("click", event => {
     const field = document.getElementById("genreField");
     if (field && !field.contains(event.target)) {
@@ -673,3 +676,4 @@ function getSelectedGenres() {
   });
 })();
 </script><script src="/genre-fix.js"></script></body></html>
+ 
