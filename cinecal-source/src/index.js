@@ -245,8 +245,56 @@ async function dispatch(action, args, env, ctx, origin) {
   }
 }
 
-// ===== Telegram notification when a visitor suggests a movie =====
+
+// ===== Telegram Notification System =====
 async function notifyTelegram(movie, hasPoster, origin, env) {
+
+  if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
+    console.error("Telegram settings are missing!");
+    return;
+  }
+
+  try {
+    const message =
+      "🎬 New Movie Suggestion\n\n" +
+      "Title: " + movie.title + "\n" +
+      "Release Date: " + movie.date + "\n" +
+      (movie.genre ? "Genre: " + movie.genre + "\n" : "") +
+      "Poster: " + (hasPoster ? "Yes" : "No") +
+      "\n\nReview: " + origin;
+
+    const response = await fetch(
+      "https://api.telegram.org/bot" +
+      env.TELEGRAM_BOT_TOKEN +
+      "/sendMessage",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          chat_id: env.TELEGRAM_CHAT_ID,
+          text: message
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      console.error("Telegram API Error:", result);
+      throw new Error(
+        result.description || "Telegram notification failed"
+      );
+    }
+
+    console.log("Telegram notification sent successfully!");
+
+  } catch (error) {
+    console.error("Telegram Error:", error.message);
+  }
+}
+
   if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) return;
   try {
     const text =
