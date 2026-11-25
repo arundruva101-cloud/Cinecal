@@ -65,6 +65,28 @@
   var $ = function (id) { return document.getElementById(id); };
   var input = $("gpInput"), menu = $("gpMenu");
   var selected = [];
+   
+  // Mobile: Disable keyboard for Genre Picker only
+  var mobileGenreMode = window.matchMedia("(max-width: 560px)");
+
+  function updateGenreInputMode() {
+    if (mobileGenreMode.matches) {
+      input.readOnly = true;
+      input.setAttribute("inputmode", "none");
+    } else {
+      input.readOnly = false;
+      input.removeAttribute("inputmode");
+    }
+  }
+
+  updateGenreInputMode();
+
+  if (mobileGenreMode.addEventListener) {
+    mobileGenreMode.addEventListener("change", updateGenreInputMode);
+  } else {
+    mobileGenreMode.addListener(updateGenreInputMode);
+  }
+
 
   function say(t) { if (typeof toast === "function") toast(t); }
 
