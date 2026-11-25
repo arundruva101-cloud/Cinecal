@@ -1,5 +1,5 @@
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.pathname.startsWith("/poster/") && request.method === "GET") {
@@ -55,7 +55,7 @@ export default {
       try {
         const payload = await request.json();
         const args = Array.isArray(payload.args) ? payload.args : [];
-        const data = await dispatch(payload.action, args, env);
+        const data = await dispatch(payload.action, args, env, ctx, url.origin);
         return json({ ok: true, data });
       } catch (error) {
         return json({ ok: false, error: error?.message || "Server error" }, 400);
@@ -156,7 +156,7 @@ async function addMovie(movie, posterData, status, by, env) {
   return true;
 }
 
-async function dispatch(action, args, env) {
+async function dispatch(action, args, env, ctx, origin) {
   switch (action) {
     case "submitMovie": {
       const pending = await env.DB.prepare(
@@ -167,14 +167,17 @@ async function dispatch(action, args, env) {
         throw new Error("Too many pending suggestions right now");
       }
 
-      return addMovie(args[0], args[1], "pending", "visitor", env);
+      const suggested = cleanMovie(args[0]);
+      const saved = await addMovie(args[0], args[1], "pending", "visitor", env);
+      ctx.waitUntil(notifyTelegram(suggested, !!args[1], origin, env));
+      return saved;
     }
 
     case "adminList": {
       checkAdmin(args[0], env);
 
       const { results } = await env.DB.prepare(
-        "SELECT id,title,date,genre,poster,status FROM movies ORDER BY created DESC"
+        "SELECT id,title,date,genre,poster,status,created FROM movies ORDER BY created DESC"
       ).all();
 
       return results;
@@ -199,7 +202,7 @@ async function dispatch(action, args, env) {
       checkAdmin(args[0], env);
 
       const row = await env.DB.prepare(
-        "SELECT id FROM movies WHERE id=?"
+        "SELECT id,poster FROM movies WHERE id=?"
       ).bind(args[1]).first();
 
       if (!row) throw new Error("Movie not found");
@@ -207,6 +210,9 @@ async function dispatch(action, args, env) {
       await env.DB.prepare(
         "DELETE FROM movies WHERE id=?"
       ).bind(args[1]).run();
+
+      // Free Google Drive space (failure here must never block the delete)
+      if (row.poster) ctx.waitUntil(deleteDrivePoster(row.poster, env));
 
       return true;
     }
@@ -237,4 +243,42 @@ async function dispatch(action, args, env) {
     default:
       throw new Error("Unknown action");
   }
+}
+
+// ===== Telegram notification when a visitor suggests a movie =====
+async function notifyTelegram(movie, hasPoster, origin, env) {
+  if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) return;
+  try {
+    const text =
+      "\u{1F3AC} New movie suggestion\n\n" +
+      "Title: " + movie.title + "\n" +
+      "Release date: " + movie.date + "\n" +
+      (movie.genre ? "Genre: " + movie.genre + "\n" : "") +
+      "Poster: " + (hasPoster ? "yes" : "no") + "\n\n" +
+      "Review it: " + origin;
+    await fetch(
+      "https://api.telegram.org/bot" + env.TELEGRAM_BOT_TOKEN + "/sendMessage",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text })
+      }
+    );
+  } catch (e) {}
+}
+
+// ===== Delete a rejected/removed poster from Google Drive =====
+async function deleteDrivePoster(fileId, env) {
+  if (!fileId || !env.GDRIVE_UPLOAD_URL || !env.GDRIVE_UPLOAD_TOKEN) return;
+  try {
+    await fetch(env.GDRIVE_UPLOAD_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token: env.GDRIVE_UPLOAD_TOKEN,
+        action: "delete",
+        id: fileId
+      })
+    });
+  } catch (e) {}
 }
