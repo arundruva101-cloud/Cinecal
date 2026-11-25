@@ -198,52 +198,52 @@ async function dispatch(action, args, env, ctx, origin) {
       return true;
     }
 
-    case "remove": {
-      checkAdmin(args[0], env);
+   
+case "remove": {
+  checkAdmin(args[0], env);
 
-      const row = await env.DB.prepare(
-        "SELECT id,poster FROM movies WHERE id=?"
-      ).bind(args[1]).first();
+  const row = await env.DB.prepare(
+    "SELECT id,poster FROM movies WHERE id=?"
+  ).bind(args[1]).first();
 
-      if (!row) throw new Error("Movie not found");
+  if (!row) throw new Error("Movie not found");
 
-      await env.DB.prepare(
-        "DELETE FROM movies WHERE id=?"
-      ).bind(args[1]).run();
-
-      // Free Google Drive space (failure here must never block the delete)
-      if (row.poster) ctx.waitUntil(deleteDrivePoster(row.poster, env));
-
-      return true;
-    }
-
-    case "adminUpdate": {
-      checkAdmin(args[0], env);
-
-      const m = cleanMovie(args[2]);
-
-      const current = await env.DB.prepare(
-        "SELECT poster FROM movies WHERE id=?"
-      ).bind(args[1]).first();
-
-      if (!current) throw new Error("Movie not found");
-
-      const uploaded = await savePoster(args[3], env);
-
-      await env.DB.prepare(
-        "UPDATE movies SET title=?,date=?,genre=?,poster=? WHERE id=?"
-      ).bind(
-        m.title, m.date, m.genre,
-        uploaded || current.poster, args[1]
-      ).run();
-
-      return true;
-    }
-
-    default:
-      throw new Error("Unknown action");
+  // Google Drive poster-টি আগে Trash-এ পাঠাবে
+  if (row.poster) {
+    await deleteDrivePoster(row.poster, env);
   }
+
+  // Drive deletion সফল হলে ডেটাবেস থেকে মুভি মুছবে
+  await env.DB.prepare(
+    "DELETE FROM movies WHERE id=?"
+  ).bind(args[1]).run();
+
+  return true;
 }
+
+case "adminUpdate": {
+  checkAdmin(args[0], env);
+
+  const m = cleanMovie(args[2]);
+
+  const current = await env.DB.prepare(
+    "SELECT poster FROM movies WHERE id=?"
+  ).bind(args[1]).first();
+
+  if (!current) throw new Error("Movie not found");
+
+  const uploaded = await savePoster(args[3], env);
+
+  await env.DB.prepare(
+    "UPDATE movies SET title=?,date=?,genre=?,poster=? WHERE id=?"
+  ).bind(
+    m.title, m.date, m.genre,
+    uploaded || current.poster, args[1]
+  ).run();
+
+  return true;
+}
+
 
 // ===== Telegram Notification System =====
 async function notifyTelegram(movie, hasPoster, origin, env) {
