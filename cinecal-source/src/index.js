@@ -94,6 +94,8 @@ function cleanMovie(movie) {
   };
 }
 
+// Uploads a poster to Google Drive and returns the file ID.
+// (Deleting posters from Drive is done manually.)
 async function savePoster(data, env) {
   if (!data || typeof data !== "string" || !data.startsWith("data:image/")) {
     return "";
@@ -132,37 +134,6 @@ async function savePoster(data, env) {
   }
 
   return result.id;
-}
-
-// Moves the poster file to the Google Drive Trash.
-// Throws on a real failure so the caller can stop and tell the admin.
-async function deleteDrivePoster(fileId, env) {
-  if (!fileId) return;
-
-  if (!env.GDRIVE_UPLOAD_URL || !env.GDRIVE_UPLOAD_TOKEN) {
-    throw new Error("Google Drive settings are missing");
-  }
-
-  const response = await fetch(env.GDRIVE_UPLOAD_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      token: env.GDRIVE_UPLOAD_TOKEN,
-      action: "delete",
-      id: fileId
-    })
-  });
-
-  let result = null;
-  try {
-    result = await response.json();
-  } catch (e) {
-    throw new Error("Drive script did not return JSON. Redeploy the Apps Script with the delete code.");
-  }
-
-  if (!response.ok || !result.ok) {
-    throw new Error("Drive delete failed: " + (result?.error || "HTTP " + response.status));
-  }
 }
 
 async function addMovie(movie, posterData, status, by, env) {
@@ -256,24 +227,23 @@ async function dispatch(action, args, env, ctx, origin) {
       return true;
     }
 
-    // Used for both "Reject" and "Delete movie"
+    // Used for both "Reject" and "Delete movie".
+    // Only the database record is removed. The poster file stays in
+    // Google Drive and is deleted manually.
     case "remove": {
       checkAdmin(args[0], env);
 
       const row = await env.DB.prepare(
-        "SELECT id,poster FROM movies WHERE id=?"
+        "SELECT id,title,poster FROM movies WHERE id=?"
       ).bind(args[1]).first();
 
       if (!row) throw new Error("Movie not found");
 
-      // 1) Move the poster to the Drive Trash first.
-      //    If this fails, the movie stays in the database and the admin sees the error.
-      if (row.poster) {
-        await deleteDrivePoster(row.poster, env);
-      }
-
-      // 2) Only then remove the database record.
       await env.DB.prepare("DELETE FROM movies WHERE id=?").bind(args[1]).run();
+
+      if (row.poster) {
+        console.log("Removed movie '" + row.title + "'. Delete this Drive file manually, ID: " + row.poster);
+      }
 
       return true;
     }
@@ -284,7 +254,7 @@ async function dispatch(action, args, env, ctx, origin) {
       const m = cleanMovie(args[2]);
 
       const current = await env.DB.prepare(
-        "SELECT poster FROM movies WHERE id=?"
+        "SELECT title,poster FROM movies WHERE id=?"
       ).bind(args[1]).first();
 
       if (!current) throw new Error("Movie not found");
@@ -298,11 +268,8 @@ async function dispatch(action, args, env, ctx, origin) {
         uploaded || current.poster, args[1]
       ).run();
 
-      // A new poster replaced the old one: send the old file to the Trash.
       if (uploaded && current.poster) {
-        ctx.waitUntil(deleteDrivePoster(current.poster, env).catch(e => {
-          console.error("Old poster trash failed:", current.poster, e.message);
-        }));
+        console.log("Poster replaced for '" + current.title + "'. Delete the old Drive file manually, ID: " + current.poster);
       }
 
       return true;
