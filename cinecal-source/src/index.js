@@ -3,47 +3,47 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname.startsWith("/poster/") && request.method === "GET") {
-  const id = decodeURIComponent(url.pathname.slice(8));
+      const id = decodeURIComponent(url.pathname.slice(8));
 
-  if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
-    return new Response("Not found", { status: 404 });
-  }
-
-  try {
-    const driveUrl =
-      "https://drive.google.com/uc?export=view&id=" +
-      encodeURIComponent(id);
-
-    const imageResponse = await fetch(driveUrl);
-
-    if (!imageResponse.ok) {
-      return new Response("Google Drive image fetch failed", {
-        status: 502
-      });
-    }
-
-    const contentType =
-      imageResponse.headers.get("Content-Type") || "";
-
-    if (!contentType.startsWith("image/")) {
-      return new Response("Google Drive did not return an image", {
-        status: 502
-      });
-    }
-
-    return new Response(imageResponse.body, {
-      headers: {
-        "Content-Type": contentType,
-        "Cache-Control": "public, max-age=3600"
+      if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+        return new Response("Not found", { status: 404 });
       }
-    });
 
-  } catch (error) {
-    return new Response("Poster error: " + error.message, {
-      status: 502
-    });
-  }
-}
+      try {
+        const driveUrl =
+          "https://drive.google.com/uc?export=view&id=" +
+          encodeURIComponent(id);
+
+        const imageResponse = await fetch(driveUrl);
+
+        if (!imageResponse.ok) {
+          return new Response("Google Drive image fetch failed", {
+            status: 502
+          });
+        }
+
+        const contentType =
+          imageResponse.headers.get("Content-Type") || "";
+
+        if (!contentType.startsWith("image/")) {
+          return new Response("Google Drive did not return an image", {
+            status: 502
+          });
+        }
+
+        return new Response(imageResponse.body, {
+          headers: {
+            "Content-Type": contentType,
+            "Cache-Control": "public, max-age=3600"
+          }
+        });
+      } catch (error) {
+        return new Response("Poster error: " + error.message, {
+          status: 502
+        });
+      }
+    }
+
     if (url.pathname === "/api/movies" && request.method === "GET") {
       const { results } = await env.DB.prepare(
         "SELECT id,title,date,genre,poster FROM movies WHERE status='approved' ORDER BY date ASC,title ASC"
@@ -245,10 +245,8 @@ async function dispatch(action, args, env, ctx, origin) {
   }
 }
 
-
 // ===== Telegram Notification System =====
 async function notifyTelegram(movie, hasPoster, origin, env) {
-
   if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
     console.error("Telegram settings are missing!");
     return;
@@ -256,7 +254,7 @@ async function notifyTelegram(movie, hasPoster, origin, env) {
 
   try {
     const message =
-      "🎬 New Movie Suggestion\n\n" +
+      "\u{1F3AC} New Movie Suggestion\n\n" +
       "Title: " + movie.title + "\n" +
       "Release Date: " + movie.date + "\n" +
       (movie.genre ? "Genre: " + movie.genre + "\n" : "") +
@@ -289,30 +287,9 @@ async function notifyTelegram(movie, hasPoster, origin, env) {
     }
 
     console.log("Telegram notification sent successfully!");
-
   } catch (error) {
     console.error("Telegram Error:", error.message);
   }
-}
-
-  if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) return;
-  try {
-    const text =
-      "\u{1F3AC} New movie suggestion\n\n" +
-      "Title: " + movie.title + "\n" +
-      "Release date: " + movie.date + "\n" +
-      (movie.genre ? "Genre: " + movie.genre + "\n" : "") +
-      "Poster: " + (hasPoster ? "yes" : "no") + "\n\n" +
-      "Review it: " + origin;
-    await fetch(
-      "https://api.telegram.org/bot" + env.TELEGRAM_BOT_TOKEN + "/sendMessage",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text })
-      }
-    );
-  } catch (e) {}
 }
 
 // ===== Delete a rejected/removed poster from Google Drive =====
