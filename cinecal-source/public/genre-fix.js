@@ -65,18 +65,6 @@
   var $ = function (id) { return document.getElementById(id); };
   var input = $("gpInput"), menu = $("gpMenu");
   var selected = [];
-     // ফোনে কিবোর্ড বন্ধ: শুধু ট্যাপ করে জনরা বাছা যাবে
-  var mq = window.matchMedia("(max-width:560px)");
-  function applyPhoneMode() {
-    var on = mq.matches;
-    input.readOnly = on;
-    input.setAttribute("inputmode", on ? "none" : "text");
-    input.style.caretColor = on ? "transparent" : "";
-    input.style.cursor = on ? "pointer" : "";
-    if (on) input.value = "";
-  }
-  applyPhoneMode();
-  if (mq.addEventListener) mq.addEventListener("change", applyPhoneMode);
 
   function say(t) { if (typeof toast === "function") toast(t); }
 
@@ -127,7 +115,7 @@
       ? MAX + " of " + MAX + " picked. Remove one to change."
       : selected.length + " of " + MAX + " picked. Choose up to " + MAX + ".";
     $("gpBar").classList.toggle("full", full);
-    input.placeholder = full ? "Limit reached" : (mq.matches ? "Tap to pick genres" : "Search or pick genres");
+    input.placeholder = full ? "Limit reached" : "Search or pick genres";
     if (open) menu.hidden = false;
   }
 
@@ -190,4 +178,91 @@
   window.getSelectedGenres = function () { return selected.join(", "); };
 
   render(false);
+})();
+
+/* ===== Released movies look faded + header logo ===== */
+(function () {
+  "use strict";
+  var css = [
+    ".day.gp-past .movie-tile .poster{filter:grayscale(1) brightness(.9);opacity:.5}",
+    ".day.gp-past .movie-tile-title{opacity:.65}",
+    ".gp-rel{position:absolute;z-index:4;top:7px;right:7px;padding:2px 8px;border-radius:99px;background:rgba(9,12,19,.82);border:1px solid rgba(255,255,255,.22);color:#cfd5e2;font-size:10px;font-weight:700;letter-spacing:.02em;pointer-events:none;backdrop-filter:blur(6px)}",
+    ".date-movie-card.gp-past .date-movie-poster{filter:grayscale(1);opacity:.55}",
+    ".gp-rel-line{display:inline-block;margin-top:8px;padding:2px 9px;border-radius:99px;background:var(--s);border:1px solid var(--line);color:var(--m);font-size:12px;font-weight:600}",
+    "@media(max-width:560px){.gp-rel{top:2px;right:2px;padding:0;width:15px;height:15px;display:grid;place-items:center;font-size:0}.gp-rel:before{content:\"\\2713\";font-size:10px;line-height:1}}",
+    ".logo i.gp-logo{background:none;overflow:hidden;border-radius:5px;width:38px;height:38px}",
+    "@media(max-width:560px){.logo i.gp-logo{width:30px;height:30px;border-radius:4px}}",
+    ".logo i.gp-logo img{width:100%;height:100%;object-fit:contain;display:block}"
+  ].join("\n");
+  var st = document.createElement("style");
+  st.textContent = css;
+  document.head.appendChild(st);
+
+  function todayIso() { return typeof iso === "function" ? iso(new Date()) : ""; }
+
+  function decorateCalendar() {
+    var grid = document.getElementById("grid");
+    if (!grid || typeof view === "undefined" || typeof iso !== "function") return;
+    var y = view.getFullYear(), mo = view.getMonth();
+    var f0 = new Date(y, mo, 1).getDay(), t = todayIso();
+    grid.querySelectorAll(".day").forEach(function (cell, i) {
+      if (!cell.querySelector(".thumbs")) return;
+      var d = new Date(y, mo, 1 - f0 + i);
+      if (iso(d) < t) {
+        cell.classList.add("gp-past");
+        if (!cell.querySelector(".gp-rel")) {
+          var b = document.createElement("span");
+          b.className = "gp-rel";
+          b.textContent = "Released";
+          cell.appendChild(b);
+        }
+      }
+    });
+  }
+
+  var baseRender = window.render;
+  if (typeof baseRender === "function") {
+    window.render = function () {
+      var r = baseRender.apply(this, arguments);
+      try { decorateCalendar(); } catch (e) {}
+      return r;
+    };
+  }
+
+  var baseDetails = window.openDateDetails;
+  if (typeof baseDetails === "function") {
+    window.openDateDetails = function (ds) {
+      var r = baseDetails.apply(this, arguments);
+      try {
+        if (typeof ds === "string" && ds < todayIso()) {
+          document.querySelectorAll("#dateMovies .date-movie-card").forEach(function (card) {
+            card.classList.add("gp-past");
+            var info = card.querySelector(".date-movie-info");
+            if (info && !info.querySelector(".gp-rel-line")) {
+              var s = document.createElement("div");
+              s.className = "gp-rel-line";
+              s.textContent = "Released";
+              info.appendChild(s);
+            }
+          });
+        }
+      } catch (e) {}
+      return r;
+    };
+  }
+
+  // Header logo: swap the film emoji for the app logo, but only if the image loads
+  var logoBox = document.querySelector("#homeLogo i");
+  if (logoBox) {
+    var img = new Image();
+    img.alt = "";
+    img.onload = function () {
+      logoBox.textContent = "";
+      logoBox.classList.add("gp-logo");
+      logoBox.appendChild(img);
+    };
+    img.src = "/favicon.png?v=2";
+  }
+
+  try { decorateCalendar(); } catch (e) {}
 })();
