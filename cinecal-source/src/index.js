@@ -17,18 +17,13 @@ export default {
         const imageResponse = await fetch(driveUrl);
 
         if (!imageResponse.ok) {
-          return new Response("Google Drive image fetch failed", {
-            status: 502
-          });
+          return new Response("Google Drive image fetch failed", { status: 502 });
         }
 
-        const contentType =
-          imageResponse.headers.get("Content-Type") || "";
+        const contentType = imageResponse.headers.get("Content-Type") || "";
 
         if (!contentType.startsWith("image/")) {
-          return new Response("Google Drive did not return an image", {
-            status: 502
-          });
+          return new Response("Google Drive did not return an image", { status: 502 });
         }
 
         return new Response(imageResponse.body, {
@@ -38,9 +33,7 @@ export default {
           }
         });
       } catch (error) {
-        return new Response("Poster error: " + error.message, {
-          status: 502
-        });
+        return new Response("Poster error: " + error.message, { status: 502 });
       }
     }
 
@@ -141,6 +134,37 @@ async function savePoster(data, env) {
   return result.id;
 }
 
+// Moves the poster file to the Google Drive Trash.
+// Throws on a real failure so the caller can stop and tell the admin.
+async function deleteDrivePoster(fileId, env) {
+  if (!fileId) return;
+
+  if (!env.GDRIVE_UPLOAD_URL || !env.GDRIVE_UPLOAD_TOKEN) {
+    throw new Error("Google Drive settings are missing");
+  }
+
+  const response = await fetch(env.GDRIVE_UPLOAD_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      token: env.GDRIVE_UPLOAD_TOKEN,
+      action: "delete",
+      id: fileId
+    })
+  });
+
+  let result = null;
+  try {
+    result = await response.json();
+  } catch (e) {
+    throw new Error("Drive script did not return JSON. Redeploy the Apps Script with the delete code.");
+  }
+
+  if (!response.ok || !result.ok) {
+    throw new Error("Drive delete failed: " + (result?.error || "HTTP " + response.status));
+  }
+}
+
 async function addMovie(movie, posterData, status, by, env) {
   const m = cleanMovie(movie);
   const poster = await savePoster(posterData, env);
@@ -154,6 +178,40 @@ async function addMovie(movie, posterData, status, by, env) {
   ).run();
 
   return true;
+}
+
+async function notifyTelegram(movie, hasPoster, origin, env) {
+  if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
+    console.error("Telegram settings are missing!");
+    return;
+  }
+
+  try {
+    const message =
+      "\u{1F3AC} New Movie Suggestion\n\n" +
+      "Title: " + movie.title + "\n" +
+      "Release Date: " + movie.date + "\n" +
+      (movie.genre ? "Genre: " + movie.genre + "\n" : "") +
+      "Poster: " + (hasPoster ? "Yes" : "No") +
+      "\n\nReview: " + origin;
+
+    const response = await fetch(
+      "https://api.telegram.org/bot" + env.TELEGRAM_BOT_TOKEN + "/sendMessage",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: message })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      throw new Error(result.description || "Telegram notification failed");
+    }
+  } catch (error) {
+    console.error("Telegram Error:", error.message);
+  }
 }
 
 async function dispatch(action, args, env, ctx, origin) {
@@ -198,131 +256,59 @@ async function dispatch(action, args, env, ctx, origin) {
       return true;
     }
 
-   
-case "remove": {
-  checkAdmin(args[0], env);
+    // Used for both "Reject" and "Delete movie"
+    case "remove": {
+      checkAdmin(args[0], env);
 
-  const row = await env.DB.prepare(
-    "SELECT id,poster FROM movies WHERE id=?"
-  ).bind(args[1]).first();
+      const row = await env.DB.prepare(
+        "SELECT id,poster FROM movies WHERE id=?"
+      ).bind(args[1]).first();
 
-  if (!row) throw new Error("Movie not found");
+      if (!row) throw new Error("Movie not found");
 
-  // Google Drive poster-টি আগে Trash-এ পাঠাবে
-  if (row.poster) {
-    await deleteDrivePoster(row.poster, env);
-  }
-
-  // Drive deletion সফল হলে ডেটাবেস থেকে মুভি মুছবে
-  await env.DB.prepare(
-    "DELETE FROM movies WHERE id=?"
-  ).bind(args[1]).run();
-
-  return true;
-}
-
-case "adminUpdate": {
-  checkAdmin(args[0], env);
-
-  const m = cleanMovie(args[2]);
-
-  const current = await env.DB.prepare(
-    "SELECT poster FROM movies WHERE id=?"
-  ).bind(args[1]).first();
-
-  if (!current) throw new Error("Movie not found");
-
-  const uploaded = await savePoster(args[3], env);
-
-  await env.DB.prepare(
-    "UPDATE movies SET title=?,date=?,genre=?,poster=? WHERE id=?"
-  ).bind(
-    m.title, m.date, m.genre,
-    uploaded || current.poster, args[1]
-  ).run();
-
-  return true;
-}
-
-
-// ===== Telegram Notification System =====
-async function notifyTelegram(movie, hasPoster, origin, env) {
-  if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
-    console.error("Telegram settings are missing!");
-    return;
-  }
-
-  try {
-    const message =
-      "\u{1F3AC} New Movie Suggestion\n\n" +
-      "Title: " + movie.title + "\n" +
-      "Release Date: " + movie.date + "\n" +
-      (movie.genre ? "Genre: " + movie.genre + "\n" : "") +
-      "Poster: " + (hasPoster ? "Yes" : "No") +
-      "\n\nReview: " + origin;
-
-    const response = await fetch(
-      "https://api.telegram.org/bot" +
-      env.TELEGRAM_BOT_TOKEN +
-      "/sendMessage",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          chat_id: env.TELEGRAM_CHAT_ID,
-          text: message
-        })
+      // 1) Move the poster to the Drive Trash first.
+      //    If this fails, the movie stays in the database and the admin sees the error.
+      if (row.poster) {
+        await deleteDrivePoster(row.poster, env);
       }
-    );
 
-    const result = await response.json();
+      // 2) Only then remove the database record.
+      await env.DB.prepare("DELETE FROM movies WHERE id=?").bind(args[1]).run();
 
-    if (!response.ok || !result.ok) {
-      console.error("Telegram API Error:", result);
-      throw new Error(
-        result.description || "Telegram notification failed"
-      );
+      return true;
     }
 
-    console.log("Telegram notification sent successfully!");
-  } catch (error) {
-    console.error("Telegram Error:", error.message);
-  }
-}
+    case "adminUpdate": {
+      checkAdmin(args[0], env);
 
+      const m = cleanMovie(args[2]);
 
-async function deleteDrivePoster(fileId, env) {
-  if (!fileId || !env.GDRIVE_UPLOAD_URL || !env.GDRIVE_UPLOAD_TOKEN) {
-    console.error("Drive delete skipped: missing settings", {
-      hasFileId: !!fileId,
-      hasUrl: !!env.GDRIVE_UPLOAD_URL,
-      hasToken: !!env.GDRIVE_UPLOAD_TOKEN
-    });
-    return;
-  }
+      const current = await env.DB.prepare(
+        "SELECT poster FROM movies WHERE id=?"
+      ).bind(args[1]).first();
 
-  try {
-    const response = await fetch(env.GDRIVE_UPLOAD_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token: env.GDRIVE_UPLOAD_TOKEN,
-        action: "delete",
-        id: fileId
-      })
-    });
+      if (!current) throw new Error("Movie not found");
 
-    const result = await response.json();
+      const uploaded = await savePoster(args[3], env);
 
-    if (!response.ok || !result.ok) {
-      throw new Error(result.error || `HTTP ${response.status}`);
+      await env.DB.prepare(
+        "UPDATE movies SET title=?,date=?,genre=?,poster=? WHERE id=?"
+      ).bind(
+        m.title, m.date, m.genre,
+        uploaded || current.poster, args[1]
+      ).run();
+
+      // A new poster replaced the old one: send the old file to the Trash.
+      if (uploaded && current.poster) {
+        ctx.waitUntil(deleteDrivePoster(current.poster, env).catch(e => {
+          console.error("Old poster trash failed:", current.poster, e.message);
+        }));
+      }
+
+      return true;
     }
 
-    console.log("Google Drive poster moved to Trash:", fileId);
-
-  } catch (error) {
-    console.error("Google Drive deletion failed:", fileId, error.message);
+    default:
+      throw new Error("Unknown action");
   }
 }
